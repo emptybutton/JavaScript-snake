@@ -21,9 +21,7 @@ class HtmlManager {
   }
 
   get size() {
-    let styleAtr = this.htmlObject.getBoundingClientRect();
-    let size = [styleAtr.width, styleAtr.height];
-    return size;
+    return [this.htmlObject.clientWidth, this.htmlObject.clientWidth];
   }
 }
 

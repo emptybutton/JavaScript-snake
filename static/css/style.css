@@ -74,12 +74,11 @@ button:active {
 
 .game-window {
   background-color: #fffdd9;
-  width: 520px;
-  height: 520px;
+  width: 524px;
+  height: 524px;
   border: solid 2px #fcd84e;
   border-radius: 2px;
   display: inline-block;
-
 }
 
 .game-cell {
