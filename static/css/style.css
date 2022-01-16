@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+/*
+colors from this style:
+  ~white: #f4f0ff;
+  ~black: #282828;
+  ~purple: #b464ff;
+  ~grey-purple: #5a648c;
+  ~yellow: #fcd84e;
+  ~light-yellow: #fffdd9;
+*/
+
+body {
+  background-color: #5a648c;
+  font-family: "Nunito";
+  font-weight: 300;
+  color: #fffff5;
+  text-align: center;
+}
+
+::selection {
+  background-color: #fcd84e;
+  color: #fffdd9;
+}
+
+a {
+  text-decoration: none;
+  color: #bec8f0;
+}
+
+a:hover {
+  text-decoration-color: #fcd84e;
+  color: #fcd84e;
+}
+
+input, button {
+  border-radius: 3px;
+  background-color: #f4f0ff;
+  border: 0;
+}
+
+input[type="file"] {background-color: inherit}
+
+button:active, input:focus {background-color: #A082E2}
+
+header {margin-bottom: 10px}
+
+footer {margin-top: 12px}
+
+.ghost {
+  position: absolute;
+  padding: 4px;
+}
+
+.integrated {display: inline}
+
+.structured-text {
+  text-align: left;
+  display: inline-block;
+}
+
+.structured-text * {margin-bottom: 3px}
+
+button {
+  background-color: #b464ff;
+  color: #282828;
+}
+
+button:active {
+  background-color: #fcd84e;
+  color: #fffdd9;
+}
+
+.form-footer {padding-top: 6px}
+
+.game-window {
+  background-color: #fffdd9;
+  width: 520px;
+  height: 520px;
+  border: solid 2px #fcd84e;
+  border-radius: 2px;
+  display: inline-block;
+
+}
+
+.game-cell {
+  width: 20px;
+  height: 20px;
+  float: left;
+}
+
+.error {
+  color: #282828;
+  position: absolute;
+}
+
+#registration-error {padding-left: 10px}
+
+.js-text {
+  color: #282828;
+  background-color: #fcd84e;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.js-text, .error {font-weight: bold}
+
+.for-authorization {display: none}
+
+.for-not-authorization {}
