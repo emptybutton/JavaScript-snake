@@ -1,32 +1,9 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
+import {HtmlSurface} from "./modules/html-managers.js";
+import {functionStructuring, activateEverybodyFrom} from "./modules/functions.js";
 
 
-class HtmlManager {
-  constructor(className, dom) {
-    this.htmlObject = this.createHtmlObject(className);
-    dom.appendChild(this.htmlObject);
-  }
-
-  clearHtmlChildren() {
-    while (this.htmlObject.firstChild) {
-      this.htmlObject.removeChild(this.htmlObject.firstChild);
-    }
-  }
-
-  createHtmlObject(className) {
-    let element = document.createElement("div");
-    element.className = className;
-
-    return element;
-  }
-
-  get size() {
-    return [this.htmlObject.clientWidth, this.htmlObject.clientWidth];
-  }
-}
-
-
-class Window extends HtmlManager {
+class Window extends HtmlSurface {
   constructor(className, dom, blockSurfaceClass, blockClassName) {
     super(className, dom);
     this.allocateBlocks(blockSurfaceClass, blockClassName);
@@ -44,11 +21,4 @@ class Window extends HtmlManager {
 }
 
 
-class GameLoop {
-  constructor(gameSurface) {
-    this.surface = gameSurface;
-  }
-}
-
-
-new Window("game-window", document.getElementsByTagName("main")[0], HtmlManager, "game-cell");
+new Window("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell");
