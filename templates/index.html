@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}JSnake{% endblock %}
+
+{% block body %}
+<header>
+  <h1>It's a snake, but in <span class="js-text">JS</span></h1>
+</header>
+<main>
+  <noscript>JavaScript is disabled. Turn it on :(</noscript>
+</main>
+<footer>
+  <a class="for-authorization" id="profile-way" href="/profile">profile</a>
+  <a class="for-not-authorization" id="registration-way" href="/registration">register</a>
+  <a class="for-not-authorization" id="authorization-way" href="/authorization">authorization</a>
+</footer>
+<script type="module" src="static\js\game.js"></script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'secondary.html' %}
+
+{% block title %}JSnake login{% endblock %}
+
+{% block main %}
+<header>
+  <h2>Authorization to snake account</h2>
+</header>
+<main>
+  <form method="post" id="account-form">
+    <div class="structured-text">
+      <div class="account-name">
+        <label>name:</label>
+        <input type="text" name="accountName" placeholder="Account name" maxlength="256" required>
+      </div>
+      <div class="account-password">
+        <label>password:</label>
+        <input type="password" name="accountPassword" placeholder="Account password" maxlength="256" required>
+        <a class="ghost" href="/password-recovery">I forgot</a>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button type="submit" class="push-data">Sign up</button>
+    </div>
+  </form>
+</main>
+<script src="static\js\authorization.js"></script>
+{% endblock %}

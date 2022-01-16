@@ -1,0 +1,37 @@
+{% extends 'secondary.html' %}
+
+{% block title %}JSnake registration{% endblock %}
+
+{% block main %}
+<header>
+  <h2>Create your snake account!</h2>
+</header>
+<main>
+  <form method="post" id="user-form">
+    <div class="structured-text">
+      <div class="user-name">
+        <label>name:</label>
+        <input type="text" name="accountName" placeholder="Some name" maxlength="256">
+      </div>
+      <div class="user-email">
+        <label>email:</label>
+        <input type="email" name="accountEmail" placeholder="Some email" maxlength="256">
+      </div>
+    </div>
+    <div class="user-password">
+      <label>password:</label>
+      <input type="password" name="originalPassword" placeholder="Account password" maxlength="256">
+      <input type="password" name="confirmPassword" placeholder="Confirm that password" maxlength="256">
+    </div>
+    <div class="some-papers">
+      <input type="checkbox" name="agree">
+      <span>I agree with all <a href="\static\text\policy.txt">papers</a></span>
+    </div>
+    <div class="form-footer">
+      <button type="submit" class="push-data">Sign up</button>
+      <span class="error" id="registration-error"></span>
+    </div>
+  </form>
+</main>
+<script src="static\js\registration.js"></script>
+{% endblock %}
