@@ -29,6 +29,6 @@ export class HtmlSurface extends HtmlInterface {
   }
 
   set color(color) {
-    this.htmlObject.style.backgroundColor = convertToCssRGBA(color);
+    this.htmlObject.style.backgroundColor = convertToRGBA(color);
   }
 }
