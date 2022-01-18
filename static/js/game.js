@@ -1,6 +1,6 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
-import {functionStructuring, activateEverybodyFrom} from "./modules/functions.js";
+import {TimeLoop} from "./modules/time-managers.js";
 
 
 class Window extends HtmlSurface {
