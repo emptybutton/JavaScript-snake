@@ -4,7 +4,7 @@ export class TimeLoop {
   #stops = 0;
   #stopThrough;
 
-  constructor(action, tact, stopThrough=-1, actionWhenStopping=() => {}) {
+  constructor(tact, action, stopThrough=-1, actionWhenStopping=() => {}) {
     this.tact = tact;
     this.action = action;
     this.actionWhenStopping = actionWhenStopping;
