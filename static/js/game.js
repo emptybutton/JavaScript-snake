@@ -94,8 +94,24 @@ class GameObject {
 }
 
 
+class Flashing extends GameObject { // Test object
+  constructor(point=[0, 0], color=[0, 0, 0]) {
+    super(point, color);
+  }
+
+  process() {
+    this.#flash()
+  }
+
+  #flash() {
+    this.point = [getRandomInt(26), getRandomInt(26)];
+    this.color = [getRandomInt(255), getRandomInt(255), getRandomInt(255)];
+  }
+}
+
+
 new Game(
   new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell"),
   new TimeLoop(1000),
-  []
+  [new Flashing()]
 ).time.start();
