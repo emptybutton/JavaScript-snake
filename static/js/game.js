@@ -1,12 +1,21 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
+import {getRandomInt} from "./modules/functions.js";
 
 
 class HtmlWindow extends HtmlSurface {
   constructor(className, dom, blockSurfaceClass, blockClassName) {
     super(className, dom);
     this.allocateBlocks(blockSurfaceClass, blockClassName);
+  }
+
+  renderPoint(point, color) {
+    this.blocks.getFrom(point).color = color;
+  }
+
+  paintOver(color) {
+    this.blocks.map(item => {item.color = color; return item});
   }
 
   allocateBlocks(blockSurfaceClass, blockClassName) {
@@ -17,7 +26,6 @@ class HtmlWindow extends HtmlSurface {
     this.blocks = new Space([this.size[0]/blockSize[0], this.size[1]/blockSize[1]]);
 
     this.blocks.map(_ => new blockSurfaceClass(blockClassName, this.htmlObject));
-
   }
 }
 
@@ -25,8 +33,8 @@ class HtmlWindow extends HtmlSurface {
 class Game {
   #time;
 
-  constructor(window, timeLoop, objects) {
-    this.window = window;
+  constructor(surface, timeLoop, objects) {
+    this.surface = surface;
     this.time = timeLoop;
     this.objects = objects;
   }
@@ -43,13 +51,16 @@ class Game {
   }
 
   process() {
-    let results = this.processingObjects();
-    this.reactionTo(results);
+    this.reactionTo(this.processingObjects());
+    this.render();
   }
 
   reactionTo(processes) {
-    if ("stop the time" in processes)
-      this.time.stop();
+    for (let i = 0; i < processes.length; i++) {
+      if (processes[i] === undefined) {}
+      else if ("stop the time" == processes[i].name)
+        this.time.stop();
+    }
   }
 
   processingObjects() {
@@ -63,11 +74,18 @@ class Game {
 
     return resultsOfProcesses;
   }
+
+  render() {
+    this.surface.paintOver([255, 255, 255]); // test
+    for (let i = 0; i < this.objects.length; i++) {
+      this.surface.renderPoint(this.objects[i].point, this.objects[i].color);
+    }
+  }
 }
 
 
 new Game(
   new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell"),
-  new TimeLoop(2000),
+  new TimeLoop(1000),
   []
 ).time.start();
