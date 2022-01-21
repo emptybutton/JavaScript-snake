@@ -84,6 +84,16 @@ class Game {
 }
 
 
+class GameObject {
+  constructor(point, color) {
+    this.point = point;
+    this.color = color;
+  }
+
+  process() {}
+}
+
+
 new Game(
   new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell"),
   new TimeLoop(1000),
