@@ -58,8 +58,10 @@ class Game {
   reactionTo(processes) {
     for (let i = 0; i < processes.length; i++) {
       if (processes[i] === undefined) {}
-      else if ("stop the time" == processes[i].name)
+
+      else if ("break" === processes[i]) {
         this.time.stop();
+      }
     }
   }
 
@@ -69,7 +71,7 @@ class Game {
 
     for (let i = 0; i < this.objects.length; i++) {
       result = this.objects[i].process();
-      resultsOfProcesses.push(this.objects[i], result);
+      resultsOfProcesses.push(result);
     }
 
     return resultsOfProcesses;
