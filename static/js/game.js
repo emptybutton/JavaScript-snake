@@ -1,7 +1,6 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
-import {getRandomInt} from "./modules/functions.js";
 
 
 class HtmlWindow extends HtmlSurface {
@@ -87,33 +86,56 @@ class Game {
 
 
 class GameObject {
+  static everything = [];
+
   constructor(point, color) {
+    GameObject.everything.push(this);
+
     this.point = point;
     this.color = color;
-  }
 
-  process() {}
-}
-
-
-class Flashing extends GameObject { // Test object
-  constructor(point=[0, 0], color=[0, 0, 0]) {
-    super(point, color);
+    this.isAlive = true;
   }
 
   process() {
-    this.#flash()
+    this.reactionToWorld(GameObject.everything);
+    this.internalProcesses();
   }
 
-  #flash() {
-    this.point = [getRandomInt(26), getRandomInt(26)];
-    this.color = [getRandomInt(255), getRandomInt(255), getRandomInt(255)];
+  internalProcesses() {}
+
+  die() {
+    this.isAlive = false;
+    GameObject.everything.splice(GameObject.everything.findIndex(this), 1);
+  }
+
+  reactionToWorld(world) {
+    for (let i = 0; i < world.length; i++) {
+      if (this != world[i])
+        this.reactionToObject(world[i]);
+    }
+  }
+
+  reactionToObject(object) {}
+}
+
+
+class SnakeHead extends GameObject {
+  reactionToObject(object) {
+    if (object.point == this.point) {
+      this.die(); // test
+    }
   }
 }
 
 
-new Game(
+class SnakeTail extends GameObject {}
+
+
+new SnakeHead([12, 12], [30, 255, 30]);
+
+new Game (
   new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell"),
   new TimeLoop(1000),
-  [new Flashing()]
+  GameObject.everything
 ).time.start();
