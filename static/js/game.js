@@ -4,8 +4,9 @@ import {TimeLoop} from "./modules/time-managers.js";
 
 
 class HtmlWindow extends HtmlSurface {
-  constructor(className, dom, blockSurfaceClass, blockClassName) {
+  constructor(className, dom, blockSurfaceClass, blockClassName, backgoundColor=[255, 255, 255]) {
     super(className, dom);
+    this.backgoundColor = backgoundColor;
     this.allocateBlocks(blockSurfaceClass, blockClassName);
   }
 
@@ -14,6 +15,10 @@ class HtmlWindow extends HtmlSurface {
   }
 
   paintOver(color) {
+    if (color == undefined) {
+      color = this.backgoundColor;
+    }
+
     this.blocks.map(item => {item.color = color; return item});
   }
 
@@ -83,7 +88,7 @@ class Game {
   }
 
   #renderOnSurface(surface) {
-    surface.paintOver([255, 255, 255]); // test
+    surface.paintOver();
     for (let i = 0; i < this.objects.length; i++) {
       surface.renderPoint(this.objects[i].point, this.objects[i].color);
     }
