@@ -32,8 +32,8 @@ class HtmlWindow extends HtmlSurface {
 class Game {
   #time;
 
-  constructor(surface, timeLoop, objects) {
-    this.surface = surface;
+  constructor(surfaces, timeLoop, objects) {
+    this.surfaces = surfaces;
     this.time = timeLoop;
     this.objects = objects;
   }
@@ -77,9 +77,15 @@ class Game {
   }
 
   render() {
-    this.surface.paintOver([255, 255, 255]); // test
+    for (let i = 0; i < this.surfaces.length; i++) {
+      this.#renderOnSurface(this.surfaces[i]);
+    }
+  }
+
+  #renderOnSurface(surface) {
+    surface.paintOver([255, 255, 255]); // test
     for (let i = 0; i < this.objects.length; i++) {
-      this.surface.renderPoint(this.objects[i].point, this.objects[i].color);
+      surface.renderPoint(this.objects[i].point, this.objects[i].color);
     }
   }
 }
@@ -135,7 +141,7 @@ class SnakeTail extends GameObject {}
 new SnakeHead([12, 12], [30, 255, 30]);
 
 new Game (
-  new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell"),
+  [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
   new TimeLoop(1000),
   GameObject.everything
 ).time.start();
