@@ -1,6 +1,7 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
+import {getRandomInt} from "./modules/functions.js";
 
 
 class HtmlWindow extends HtmlSurface {
@@ -99,6 +100,8 @@ class Game {
 class GameObject {
   static everything = [];
 
+  #color;
+
   constructor(point, color) {
     GameObject.everything.push(this);
 
@@ -106,6 +109,18 @@ class GameObject {
     this.color = color;
 
     this.isAlive = true;
+  }
+
+  set color(color) {
+    if (color == undefined) {
+      this.#color = this.constructor.defaultColor;
+    } else {
+      this.#color = color;
+    }
+  }
+
+  get color() {
+    return this.#color;
   }
 
   process() {
@@ -132,18 +147,51 @@ class GameObject {
 
 
 class SnakeHead extends GameObject {
+  static defaultColor = [252, 216, 78];
+
   reactionToObject(object) {
-    if (object.point == this.point) {
-      this.die(); // test
+    if (object.point.join() == this.point.join()) {
+      if (object instanceof Fruit) {
+        new SnakeTail([this.point[0], this.point[1] + 1]); // test
+      }
+      else {
+        this.die()
+      }
     }
   }
 }
 
 
-class SnakeTail extends GameObject {}
+class SnakeTail extends GameObject {
+  static defaultColor = [255, 224, 107];
+}
 
 
-new SnakeHead([12, 12], [30, 255, 30]);
+class Fruit extends GameObject {
+  static defaultColor = [179, 39, 230];
+
+  teleportToRandomPlace(range) {
+    let newPoint = [];
+    for (let i = 0; i < range.length; i++) {
+      newPoint.push(getRandomInt(range[i]));
+    }
+
+    if (newPoint.join() == this.point.join())
+      this.teleportToRandomPlace(range);
+    else
+      this.point = newPoint;
+  }
+
+  reactionToObject(object) {
+    if (object.point.join() == this.point.join()) {
+      this.teleportToRandomPlace([26, 26]);
+    }
+  }
+}
+
+
+new SnakeHead([12, 11]);
+new Fruit([12, 11]);
 
 new Game (
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
