@@ -91,7 +91,13 @@ class Game {
   #renderOnSurface(surface) {
     surface.paintOver();
     for (let i = 0; i < this.objects.length; i++) {
-      surface.renderPoint(this.objects[i].point, this.objects[i].color);
+      this.#renderObjectOnSurface(surface, this.objects[i]);
+    }
+  }
+
+  #renderObjectOnSurface(surface, object) {
+    for (let i = 0; i < object.parts.length; i++) {
+      surface.renderPoint(object.parts[i].point, object.parts[i].color)
     }
   }
 }
@@ -120,8 +126,6 @@ class GameObject extends GameElement {
   constructor() {
     super();
     GameObject.everything.push(this);
-
-    this.initParts();
   }
 
   initParts() {}
@@ -154,11 +158,12 @@ class GameObjectPart extends GameElement {
   static defaultColor;
 
   #color;
+  #point;
+  #previousPoint;
 
   constructor(point, master, color) {
     super();
-    this.point = point;
-    this.direction = "rigth";
+    this.#point = Array.from(point);
     this.color = color;
 
     this.master = master;
@@ -173,10 +178,21 @@ class GameObjectPart extends GameElement {
   }
 
   get color() {
-    return this.#color;
+    return Array.from(this.#color);
   }
 
-  move(direction) {}
+  moveTo(point) {
+    this.#previousPoint = this.#point;
+    this.#point = point;
+  }
+
+  get point() {
+    return Array.from(this.#point);
+  }
+
+  get previousPoint() {
+    return Array.from(this.#previousPoint);
+  }
 
   process() {
     this.reactionToWorld(GameObject.everything);
@@ -191,31 +207,28 @@ class GameObjectPart extends GameElement {
   }
 
   reactionToObject(object) {}
-
-  getRelativePositionFrom(object) {
-    let differencePosition = getPositionDifferenceFrom(object);
-  }
-
-  getPositionDifferenceFrom(object) {
-    let vector = [];
-    for (let i = 0; i < this.point; i++) {
-      vector.push(this.point[i] - object.point[i]);
-    }
-
-    return vector;
-  }
 }
 
 
-class Snake extends GameObject {
+class Snake extends GameObject { //DO TO
+  constructor(speed=1) {
+    super();
+    this.speed = speed;
+  }
+
   initParts(head, tailClass, tailsNumber) {
     this.head = head;
+    this.head.master = this;
     this.parts = [head];
 
     this.tailClassDefault = tailClass;
 
+    let nextPoint;
     for (let i = 0; i < tailsNumber; i++) {
-      this.addTail()
+      nextPoint = this.parts[this.parts.length - 1].point;
+      nextPoint[0]--;
+
+      this.parts.push(new this.tailClassDefault(nextPoint, this));
     }
   }
 
@@ -223,16 +236,27 @@ class Snake extends GameObject {
     if (tail == undefined) {
       tail = new this.tailClassDefault(this.head.point);
     }
+
+    tail.tail.master = this;
+    tail.moveTo(this.parts[this.parts.length - 1].previousPoint);
+    this.parts.push(tail);
   }
 
   stateProcess() {}
+
+  get tails() {
+    let tails = Array.from(this.parts);
+    tails.splice(tails.indexOf(this.head), 1);
+
+    return tails;
+  }
 }
 
 
 class SnakeHead extends GameObjectPart {
   static defaultColor = [252, 216, 78];
 
-  reactionToObject(object) {
+  /*reactionToObject(object) {
     if (object.point.join() == this.point.join()) {
       if (object instanceof Fruit) {
         new SnakeTail([this.point[0], this.point[1] + 1]); // test
@@ -241,7 +265,7 @@ class SnakeHead extends GameObjectPart {
         this.die()
       }
     }
-  }
+  }*/
 }
 
 
@@ -272,6 +296,8 @@ class Fruit extends GameObjectPart {
   }
 }
 
+
+new Snake().initParts(new SnakeHead([12, 12]), SnakeTail, 3);
 
 new Game (
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
