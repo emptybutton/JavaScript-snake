@@ -4,7 +4,7 @@ import {TimeLoop} from "./modules/time-managers.js";
 import {getRandomInt} from "./modules/functions.js";
 
 
-class HtmlWindow extends HtmlSurface {
+class HtmlWindow extends HtmlSurface { // test
   constructor(className, dom, blockSurfaceClass, blockClassName, backgoundColor=[255, 255, 255]) {
     super(className, dom);
     this.backgoundColor = backgoundColor;
@@ -128,7 +128,7 @@ class GameObject extends GameElement {
     GameObject.everything.push(this);
   }
 
-  initParts() {}
+  initializeParts() {}
 
   internalProcesses() {
     this.processingParts();
@@ -154,11 +154,12 @@ class GameObject extends GameElement {
 }
 
 
-class GameObjectPart extends GameElement {
+class GameObjectPart extends GameElement { // big ass
   static defaultColor;
 
   #color;
   #point;
+  #direction;
   #previousPoint;
 
   constructor(point, master, color) {
@@ -181,9 +182,23 @@ class GameObjectPart extends GameElement {
     return Array.from(this.#color);
   }
 
-  moveTo(point) {
+  moveToPoint(point) {
     this.#previousPoint = this.#point;
     this.#point = point;
+
+    this.direction = this.lastPointChanges;
+  }
+
+  moveInVector(vector) {
+    this.#previousPoint = Array.from(this.#point);
+
+    for (let i = 0; i < this.#point.length; i++) {
+      if (i < vector.length) {
+        this.#point[i] += vector[i];
+      }
+    }
+
+    this.direction = this.lastPointChanges;
   }
 
   get point() {
@@ -192,6 +207,23 @@ class GameObjectPart extends GameElement {
 
   get previousPoint() {
     return Array.from(this.#previousPoint);
+  }
+
+  get direction() {
+    return Array.from(this.#direction);
+  }
+
+  set direction(vector) {
+    this.#direction = vector.map(coordinate => Math.sign(coordinate));
+  }
+
+  get lastPointChanges() {
+    let lastChanges = [];
+    for (let i = 0; i < this.#point.length; i++) {
+      lastChanges.push(this.#point[i] - this.#previousPoint[i]);
+    }
+
+    return lastChanges;
   }
 
   process() {
@@ -210,15 +242,16 @@ class GameObjectPart extends GameElement {
 }
 
 
-class Snake extends GameObject { //DO TO
-  constructor(speed=1) {
+class Snake extends GameObject {
+  constructor(step=1) {
     super();
-    this.speed = speed;
+    this.step = step;
   }
 
-  initParts(head, tailClass, tailsNumber) {
+  initializeParts(head, tailClass, tailsNumber) {
     this.head = head;
     this.head.master = this;
+    this.head.direction = [1];
     this.parts = [head];
 
     this.tailClassDefault = tailClass;
@@ -238,11 +271,23 @@ class Snake extends GameObject { //DO TO
     }
 
     tail.tail.master = this;
-    tail.moveTo(this.parts[this.parts.length - 1].previousPoint);
+    tail.moveToPoint(this.parts[this.parts.length - 1].previousPoint);
     this.parts.push(tail);
   }
 
-  stateProcess() {}
+  stateProcess() {
+    this.move();
+  }
+
+  move() {
+    for (let _ = 0; _ < this.step; _++) {
+      this.head.moveInVector(this.head.direction);
+
+      for (let i = 1; i < this.parts.length; i++) {
+        this.parts[i].moveToPoint(this.parts[i - 1].previousPoint);
+      }
+    }
+  }
 
   get tails() {
     let tails = Array.from(this.parts);
@@ -297,7 +342,10 @@ class Fruit extends GameObjectPart {
 }
 
 
-new Snake().initParts(new SnakeHead([12, 12]), SnakeTail, 3);
+let snake = new Snake();
+snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 3);
+
+setTimeout(_ => {snake.head.direction = [0, 1]}, 24000); // for the test
 
 new Game (
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
