@@ -23,7 +23,7 @@ export class Space {
     return Array.from(this.#cells, cell => cell.data);
   }
 
-  index(data) {
+  indexOf(data) {
     for (let i = 0; i < this.#cells.length; i++) {
       if (this.#cells[i].data == data)
         return this.#cells[i].address;
@@ -34,7 +34,7 @@ export class Space {
     this.#getCellByPoint(point).data = data;
   }
 
-  map(fun) {
+  prism(fun) {
     let newData = Array.from(this.getAll(), fun);
 
     for (let i = 0; i < this.#cells.length; i++) {
@@ -52,7 +52,7 @@ export class Space {
         return this.#cells[i];
     }
 
-    throw `cell ${point} not found`;
+    throw `cell "${point}" not found`;
   }
 
   #createMultidimensionalPoints(size) {

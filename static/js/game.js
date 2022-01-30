@@ -20,7 +20,7 @@ class HtmlWindow extends HtmlSurface { // test
       color = this.backgoundColor;
     }
 
-    this.blocks.map(item => {item.color = color; return item});
+    this.blocks.prism(item => {item.color = color; return item});
   }
 
   allocateBlocks(blockSurfaceClass, blockClassName) {
@@ -30,7 +30,7 @@ class HtmlWindow extends HtmlSurface { // test
 
     this.blocks = new Space([this.size[0]/blockSize[0], this.size[1]/blockSize[1]]);
 
-    this.blocks.map(_ => new blockSurfaceClass(blockClassName, this.htmlObject));
+    this.blocks.prism(_ => new blockSurfaceClass(blockClassName, this.htmlObject));
   }
 }
 
