@@ -28,6 +28,18 @@ export class Space {
       if (this.#cells[i].data == data)
         return this.#cells[i].address;
     }
+
+    return -1;
+  }
+
+  withinSize(point) {
+    for (let i = 0; i < point.length; i++) {
+      if (this.#size[i] < point[i] || point[i] < 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   setTo(point, data) {
