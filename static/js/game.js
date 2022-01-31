@@ -35,29 +35,66 @@ class HtmlWindow extends HtmlSurface { // test
 }
 
 
-class Game {
+class Timer {
   #time;
 
-  constructor(surfaces, timeLoop, objects) {
-    this.surfaces = surfaces;
-    this.time = timeLoop;
-    this.objects = objects;
-  }
+  process() {}
 
   set time(timeLoop) {
     this.#time = timeLoop;
-    this.time.stop();
+    this.#time.stop();
     let that = this;
-    this.time.action = () => {that.process()};
+    this.#time.action = () => {that.process()};
   }
 
   get time() {
     return this.#time;
   }
+}
+
+
+class Renderer extends Timer {
+  constructor(world, surfaces, timeLoop) {
+    super();
+    this.world = world;
+    this.time = timeLoop;
+    this.surfaces = surfaces;
+  }
+
+  process() {
+    this.render();
+  }
+
+  render() {
+    for (let i = 0; i < this.surfaces.length; i++) {
+      this.renderOnSurface(this.surfaces[i]);
+    }
+  }
+
+  renderOnSurface(surface) {
+    surface.paintOver();
+    for (let i = 0; i < this.world.objects.length; i++) {
+      this.renderObjectOnSurface(surface, this.world.objects[i]);
+    }
+  }
+
+  renderObjectOnSurface(surface, object) {
+    for (let i = 0; i < object.parts.length; i++) {
+      surface.renderPoint(object.parts[i].point, object.parts[i].color)
+    }
+  }
+}
+
+
+class World extends Timer {
+  constructor(objects, timeLoop) {
+    super();
+    this.time = timeLoop;
+    this.objects = objects;
+  }
 
   process() {
     this.reactionTo(this.processingObjects());
-    this.render();
   }
 
   reactionTo(processes) {
@@ -80,25 +117,6 @@ class Game {
     }
 
     return resultsOfProcesses;
-  }
-
-  render() {
-    for (let i = 0; i < this.surfaces.length; i++) {
-      this.#renderOnSurface(this.surfaces[i]);
-    }
-  }
-
-  #renderOnSurface(surface) {
-    surface.paintOver();
-    for (let i = 0; i < this.objects.length; i++) {
-      this.#renderObjectOnSurface(surface, this.objects[i]);
-    }
-  }
-
-  #renderObjectOnSurface(surface, object) {
-    for (let i = 0; i < object.parts.length; i++) {
-      surface.renderPoint(object.parts[i].point, object.parts[i].color)
-    }
   }
 }
 
@@ -342,13 +360,16 @@ class Fruit extends GameObjectPart {
 }
 
 
-let snake = new Snake();
-snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 3);
+const snake = new Snake();
+snake.initializeParts(new SnakeHead([3, 0]), SnakeTail, 3);
 
 setTimeout(_ => {snake.head.direction = [0, 1]}, 24000); // for the test
 
-new Game (
+const render = new Renderer(
+  new World(GameObject.everything, new TimeLoop(1000)),
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
-  new TimeLoop(1000),
-  GameObject.everything
-).time.start();
+  new TimeLoop(1000)
+)
+
+render.time.start();
+render.world.time.start();
