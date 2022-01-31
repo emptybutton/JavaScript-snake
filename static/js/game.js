@@ -12,7 +12,8 @@ class HtmlWindow extends HtmlSurface { // test
   }
 
   renderPoint(point, color) {
-    this.blocks.getFrom(point).color = color;
+    if (this.blocks.withinSize(point))
+      this.blocks.getFrom(point).color = color;
   }
 
   paintOver(color) {
@@ -361,7 +362,7 @@ class Fruit extends GameObjectPart {
 
 
 const snake = new Snake();
-snake.initializeParts(new SnakeHead([3, 0]), SnakeTail, 3);
+snake.initializeParts(new SnakeHead([-1, 0]), SnakeTail, 3);
 
 setTimeout(_ => {snake.head.direction = [0, 1]}, 24000); // for the test
 
