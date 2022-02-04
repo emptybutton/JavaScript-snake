@@ -456,6 +456,33 @@ class SnakeTail extends GameObjectPart {
 }
 
 
+class Fugitive extends GameObjectPart {
+  constructor(point, escapePoints, master, color) {
+    super(point, master, color);
+    this.escapePoints = escapePoints;
+  }
+
+  runAway() {
+    let newPoint = this.escapePoints[getRandomInt(this.escapePoints.length - 1)];
+
+    if (this.point.join() == newPoint.join())
+      this.runAway();
+    else
+      this.teleportTo(newPoint);
+  }
+
+  reactionToCellmate(cellmate) {
+    this.runAway();
+  }
+}
+
+
+class Eggplant extends Fugitive {
+  static defaultColor = [179, 39, 230];
+}
+
+
+GameObject.createWrapperFor(new Eggplant([3, 0], getSquareForm(26)));
 
 const snake = new Snake();
 snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
