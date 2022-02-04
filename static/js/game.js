@@ -224,20 +224,16 @@ class GameObjectPart extends GameElement {
       return this.#color;
   }
 
-  moveToPoint(point) {
+  teleportTo(point) {
     this.#previousPoint = this.#point;
     this.#point = point;
-
-    this.direction = this.lastPointChanges;
   }
 
-  moveInVector(vector) {
+  move(vector) {
     this.#previousPoint = Array.from(this.#point);
 
-    for (let i = 0; i < this.#point.length; i++) {
-      if (i < vector.length) {
-        this.#point[i] += vector[i];
-      }
+    for (let i = 0; i < vector.length; i++) {
+      this.#point[i] += vector[i];
     }
 
     this.direction = this.lastPointChanges;
@@ -291,7 +287,7 @@ class Zone extends GameObject {
   changeParts(parts) {
     for (let i = 0; i < parts.length; i++) {
       if (!this.isPointWithinBorders(parts[i].point))
-        parts[i].moveToPoint(this.changePoint(parts[i].point));
+        parts[i].teleportTo(this.changePoint(parts[i].point));
     }
   }
 
@@ -395,12 +391,12 @@ class Snake extends GameObject { //DO IT
   }
 
   initializeParts(head, tailClass, tailsNumber) {
+    this.tailClassDefault = tailClass;
+
     this.head = head;
     this.head.master = this;
     this.head.direction = [1];
     this.parts = [head];
-
-    this.tailClassDefault = tailClass;
 
     let nextPoint;
     for (let i = 0; i < tailsNumber; i++) {
@@ -417,20 +413,20 @@ class Snake extends GameObject { //DO IT
     }
 
     tail.tail.master = this;
-    tail.moveToPoint(this.parts[this.parts.length - 1].previousPoint);
+    tail.teleportTo(this.parts[this.parts.length - 1].previousPoint);
     this.parts.push(tail);
   }
 
   stateProcess() {
-    this.move();
+    this.moveParts();
   }
 
-  move() {
-    for (let _ = 0; _ < this.step; _++) {
-      this.head.moveInVector(this.head.direction);
+  moveParts() {
+    for (let tact = 0; tact < this.step; tact++) {
+      this.head.move(this.head.direction);
 
       for (let i = 1; i < this.parts.length; i++) {
-        this.parts[i].moveToPoint(this.parts[i - 1].previousPoint);
+        this.parts[i].teleportTo(this.parts[i - 1].previousPoint);
       }
     }
   }
@@ -477,29 +473,16 @@ class Fruit extends GameObjectPart {
 }
 
 
-class Tile extends GameObjectPart {
-  static defaultColor = [255, 255, 168];
-}
-
-/*console.log();
 const snake = new Snake();
-snake.initializeParts(new SnakeHead([0, 0]), SnakeTail, 0);
-*/
+snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
 
-let wall = new Zone();
-wall.initializeParts(getSquareForm(4), GameObjectPart);
-
-let megaMen = new SnakeTail([0, 0]);
-GameObject.createWrapperFor(megaMen);
-
-
-
-setInterval(_ => {megaMen.moveInVector([1])}, 1000); // for the test
+const wall = new Zone();
+wall.initializeParts(getSquareForm(26), GameObjectPart);
 
 const render = new Renderer(
   new World(GameObject.everything, new TimeLoop(1000)),
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
-  new TimeLoop(500)
+  new TimeLoop(100)
 )
 
 render.time.start();
