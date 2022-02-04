@@ -1,7 +1,7 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
-import {getRandomInt} from "./modules/functions.js";
+import {getRandomInt, getSquareForm} from "./modules/functions.js";
 
 
 class HtmlWindow extends HtmlSurface { // test
@@ -81,7 +81,8 @@ class Renderer extends Timer {
 
   renderObjectOnSurface(surface, object) {
     for (let i = 0; i < object.parts.length; i++) {
-      surface.renderPoint(object.parts[i].point, object.parts[i].color)
+      if (object.parts[i].color != undefined)
+        surface.renderPoint(object.parts[i].point, object.parts[i].color)
     }
   }
 }
@@ -128,8 +129,18 @@ class GameElement {
   }
 
   process() {
+    this.reactionToWorld(GameObject.everything);
     this.internalProcesses();
   }
+
+  reactionToWorld(world) {
+    for (let i = 0; i < world.length; i++) {
+      if (this != world[i])
+        this.reactionToObject(world[i]);
+    }
+  }
+
+  reactionToObject(object) {}
 
   internalProcesses() {}
 
@@ -145,6 +156,7 @@ class GameObject extends GameElement {
   constructor() {
     super();
     GameObject.everything.push(this);
+    this.parts = [];
   }
 
   initializeParts() {}
@@ -170,10 +182,18 @@ class GameObject extends GameElement {
       this.parts[i].die();
     }
   }
+
+  static createWrapperFor(part) {
+    let wrapper = new GameObject();
+    wrapper.parts = [part];
+    part.master = wrapper;
+
+    return wrapper;
+  }
 }
 
 
-class GameObjectPart extends GameElement { // big ass
+class GameObjectPart extends GameElement {
   static defaultColor;
 
   #color;
@@ -198,7 +218,10 @@ class GameObjectPart extends GameElement { // big ass
   }
 
   get color() {
-    return Array.from(this.#color);
+    if (Array.isArray(this.#color))
+      return Array.from(this.#color);
+    else
+      return this.#color;
   }
 
   moveToPoint(point) {
@@ -244,24 +267,128 @@ class GameObjectPart extends GameElement { // big ass
 
     return lastChanges;
   }
-
-  process() {
-    this.reactionToWorld(GameObject.everything);
-    super.process();
-  }
-
-  reactionToWorld(world) {
-    for (let i = 0; i < world.length; i++) {
-      if (this != world[i])
-        this.reactionToObject(world[i]);
-    }
-  }
-
-  reactionToObject(object) {}
 }
 
 
-class Snake extends GameObject {
+class Zone extends GameObject {
+  initializeParts(points, classOfPart) {
+    this.parts = [];
+    for (let i = 0; i < points.length; i++) {
+      this.parts.push(new classOfPart(points[i], this));
+    }
+  }
+
+  reactionToObject(object) {
+    this.changePositionOf(object);
+  }
+
+  changePositionOf(...objects) {
+    for (let i = 0; i < objects.length; i++) {
+      this.changeParts(objects[i].parts);
+    }
+  }
+
+  changeParts(parts) {
+    for (let i = 0; i < parts.length; i++) {
+      if (!this.isPointWithinBorders(parts[i].point))
+        parts[i].moveToPoint(this.changePoint(parts[i].point));
+    }
+  }
+
+  changePoint(point) {
+    for (let i = 0; i < point.length; i++) {
+      let locationRange = this.getLocationRange(point, i);
+
+      if (locationRange.join() == locationRange.map(item => undefined))
+        locationRange = this.getLocationRange(this.getNearestPointFrom(point), i);
+
+      if (point[i] < locationRange[0][i]) {
+        point[i] = locationRange[1][i];
+      }
+
+      else if (point[i] > locationRange[1][i]) {
+        point[i] = locationRange[0][i];
+      }
+    }
+
+    return point;
+  }
+
+  isPointWithinBorders(point) {
+    let myPoints = this.parts.map(part => part.point);
+    for (let i = 0; i < myPoints.length; i++) {
+      if (point.join() == myPoints[i].join())
+        return true;
+    }
+
+    return false;
+  }
+
+  getNearestPointFrom(point) {
+    let nearestPoint;
+    let points = this.parts.map(part => part.point);
+    let minDistance = Infinity;
+    let activeDistance;
+
+    for (let i = 0; i < points.length; i++) {
+      activeDistance = this.#getDistanceFrom(point, points[i]);
+      if (activeDistance < minDistance) {
+        nearestPoint = points[i];
+        minDistance = activeDistance;
+      }
+    }
+
+    return nearestPoint;
+  }
+
+  getLocationRange(referencePoint, axis) {
+    let points = this.getLocationAlongAxis(referencePoint, axis);
+
+    points.sort((first, second) => {
+      if (first[axis] > second[axis]) return 1;
+      else if (first[axis] == second[axis]) return 0;
+      else return -1;
+    });
+
+    return [points[0], points[points.length - 1]];
+  }
+
+  getLocationAlongAxis(referencePoint, axis) {
+    let points = this.parts.map(part => part.point);
+    let clearedReferencePoint = this.#getClearedPointFromAxis(referencePoint, axis);
+
+    let satisfyingPoints = [];
+    for (let i = 0; i < points.length; i++) {
+      if (this.#getClearedPointFromAxis(points[i], axis).join() == clearedReferencePoint.join())
+        satisfyingPoints.push(points[i]);
+    }
+
+    return satisfyingPoints;
+  }
+
+  #getClearedPointFromAxis(point, axis) {
+    point = Array.from(point);
+    point[axis] = null;
+
+    return point;
+  }
+
+  #getDistanceFrom(firstPoint, secondPoint) {
+    return Math.sqrt(this.#getVectorFrom(firstPoint, secondPoint).map(coordinate => coordinate**2).reduce((sum, elem) => sum + elem, 0));
+  }
+
+  #getVectorFrom(startPoint, endPoint) {
+    let vector = [];
+    for (let i = 0; i < startPoint.length; i++) {
+      vector.push(endPoint[i] - startPoint[i]);
+    }
+
+    return vector;
+  }
+}
+
+
+class Snake extends GameObject { //DO IT
   constructor(step=1) {
     super();
     this.step = step;
@@ -319,17 +446,6 @@ class Snake extends GameObject {
 
 class SnakeHead extends GameObjectPart {
   static defaultColor = [252, 216, 78];
-
-  /*reactionToObject(object) {
-    if (object.point.join() == this.point.join()) {
-      if (object instanceof Fruit) {
-        new SnakeTail([this.point[0], this.point[1] + 1]); // test
-      }
-      else {
-        this.die()
-      }
-    }
-  }*/
 }
 
 
@@ -361,15 +477,29 @@ class Fruit extends GameObjectPart {
 }
 
 
-const snake = new Snake();
-snake.initializeParts(new SnakeHead([-1, 0]), SnakeTail, 3);
+class Tile extends GameObjectPart {
+  static defaultColor = [255, 255, 168];
+}
 
-setTimeout(_ => {snake.head.direction = [0, 1]}, 24000); // for the test
+/*console.log();
+const snake = new Snake();
+snake.initializeParts(new SnakeHead([0, 0]), SnakeTail, 0);
+*/
+
+let wall = new Zone();
+wall.initializeParts(getSquareForm(4), GameObjectPart);
+
+let megaMen = new SnakeTail([0, 0]);
+GameObject.createWrapperFor(megaMen);
+
+
+
+setInterval(_ => {megaMen.moveInVector([1])}, 1000); // for the test
 
 const render = new Renderer(
   new World(GameObject.everything, new TimeLoop(1000)),
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
-  new TimeLoop(1000)
+  new TimeLoop(500)
 )
 
 render.time.start();
