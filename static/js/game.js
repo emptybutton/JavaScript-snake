@@ -140,7 +140,13 @@ class GameElement {
     }
   }
 
-  reactionToObject(object) {}
+  reactionToObject(object) {
+    for (let i = 0; i < object.parts.length; i++) {
+      this.reactionToPart(object.parts[i]);
+    }
+  }
+
+  reactionToPart(part) {}
 
   internalProcesses() {}
 
@@ -263,32 +269,32 @@ class GameObjectPart extends GameElement {
 
     return lastChanges;
   }
+
+  reactionToPart(part) {
+    if (!(part instanceof Background || this == part)) {
+      if (this.point.join() == part.point.join())
+        this.reactionToCellmate(part);
+    }
+  }
+
+  reactionToCellmate(cellmate) {}
 }
 
 
+class Background extends GameObjectPart {}
+
+
 class Zone extends GameObject {
-  initializeParts(points, classOfPart) {
+  initializeParts(points, classOfPart=Background) {
     this.parts = [];
     for (let i = 0; i < points.length; i++) {
       this.parts.push(new classOfPart(points[i], this));
     }
   }
 
-  reactionToObject(object) {
-    this.changePositionOf(object);
-  }
-
-  changePositionOf(...objects) {
-    for (let i = 0; i < objects.length; i++) {
-      this.changeParts(objects[i].parts);
-    }
-  }
-
-  changeParts(parts) {
-    for (let i = 0; i < parts.length; i++) {
-      if (!this.isPointWithinBorders(parts[i].point))
-        parts[i].teleportTo(this.changePoint(parts[i].point));
-    }
+  reactionToPart(part) {
+    if (!this.isPointWithinBorders(part.point))
+      part.teleportTo(this.changePoint(part.point));
   }
 
   changePoint(point) {
@@ -450,34 +456,12 @@ class SnakeTail extends GameObjectPart {
 }
 
 
-class Fruit extends GameObjectPart {
-  static defaultColor = [179, 39, 230];
-
-  teleportToRandomPlace(range) {
-    let newPoint = [];
-    for (let i = 0; i < range.length; i++) {
-      newPoint.push(getRandomInt(range[i]));
-    }
-
-    if (newPoint.join() == this.point.join())
-      this.teleportToRandomPlace(range);
-    else
-      this.point = newPoint;
-  }
-
-  reactionToObject(object) {
-    if (object.point.join() == this.point.join()) {
-      this.teleportToRandomPlace([26, 26]);
-    }
-  }
-}
-
 
 const snake = new Snake();
 snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
 
 const wall = new Zone();
-wall.initializeParts(getSquareForm(26), GameObjectPart);
+wall.initializeParts(getSquareForm(26));
 
 const render = new Renderer(
   new World(GameObject.everything, new TimeLoop(1000)),
