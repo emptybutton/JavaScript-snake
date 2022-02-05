@@ -1,43 +1,62 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
-import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
 import {
   getRandomInt,
   getSquareForm,
   getDistanceFrom,
   getVectorFrom,
-  foldPoints
+  foldPoints,
+  convertToCssRGBA
 } from "./modules/functions.js";
 
 
-class HtmlWindow extends HtmlSurface { // test
-  constructor(className, dom, blockSurfaceClass, blockClassName, backgoundColor=[255, 255, 255]) {
-    super(className, dom);
-    this.backgoundColor = backgoundColor;
-    this.allocateBlocks(blockSurfaceClass, blockClassName);
+class Surface {
+  renderPoint(point, color) {}
+
+  paintOver(color) {}
+
+  get size() {}
+}
+
+
+class CanvasManager extends Surface {
+  #canvas;
+  #context;
+  #backgroundColor;
+
+  constructor(canvas, сellSize, backgroundColor=[255, 255, 255]) {
+    super();
+    this.canvas = canvas;
+    this.сellSize = сellSize;
+    this.backgroundColor = backgroundColor;
+  }
+
+  set canvas(canvas) {
+    this.#canvas = canvas;
+    this.#context = canvas.getContext("2d");
+  }
+
+  set backgroundColor(color) {
+    this.#backgroundColor = convertToCssRGBA(color);
   }
 
   renderPoint(point, color) {
-    if (this.blocks.withinSize(point))
-      this.blocks.getFrom(point).color = color;
+    this.#context.fillStyle = convertToCssRGBA(color);
+    this.#context.fillRect(
+      point[0]*this.сellSize[0],
+      point[1]*this.сellSize[1],
+      this.сellSize[0],
+      this.сellSize[1]
+    );
   }
 
   paintOver(color) {
-    if (color == undefined) {
-      color = this.backgoundColor;
-    }
-
-    this.blocks.prism(item => {item.color = color; return item});
+    this.#context.fillStyle = this.#backgroundColor;
+    this.#context.fillRect(0, 0, ...this.size);
   }
 
-  allocateBlocks(blockSurfaceClass, blockClassName) {
-    let testBlocks = new blockSurfaceClass(blockClassName, this.htmlObject);
-    let blockSize = testBlocks.size;
-    this.clearHtmlChildren();
-
-    this.blocks = new Space([this.size[0]/blockSize[0], this.size[1]/blockSize[1]]);
-
-    this.blocks.prism(_ => new blockSurfaceClass(blockClassName, this.htmlObject));
+  get size() {
+    return [this.#canvas.clientWidth, this.#canvas.clientWidth];
   }
 }
 
@@ -509,7 +528,7 @@ new Zone(theWorld).initializeParts(getSquareForm(26));
 
 new Renderer(
   theWorld,
-  [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
+  [new CanvasManager(document.getElementById("main-surface"), [20, 20])],
   new TimeLoop(100)
 ).time.start();
 
