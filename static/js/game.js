@@ -1,7 +1,13 @@
 import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {HtmlSurface} from "./modules/html-managers.js";
 import {TimeLoop} from "./modules/time-managers.js";
-import {getRandomInt, getSquareForm} from "./modules/functions.js";
+import {
+  getRandomInt,
+  getSquareForm,
+  getDistanceFrom,
+  getVectorFrom,
+  foldPoints
+} from "./modules/functions.js";
 
 
 class HtmlWindow extends HtmlSurface { // test
@@ -181,7 +187,9 @@ class GameObject extends GameElement {
     this.#world.objects.push(this);
   }
 
-  initializeParts() {}
+  initializeParts() {
+    this.killParts();
+  }
 
   killParts() {
     for (let i = 0; i < this.parts.length; i++) {
@@ -251,17 +259,12 @@ class GameObjectPart extends GameElement {
   }
 
   teleportTo(point) {
-    this.#previousPoint = this.#point;
+    this.#previousPoint = Array.from(this.#point);
     this.#point = point;
   }
 
   move(vector) {
-    this.#previousPoint = Array.from(this.#point);
-
-    for (let i = 0; i < vector.length; i++) {
-      this.#point[i] += vector[i];
-    }
-
+    this.teleportTo(foldPoints(this.point, vector));
     this.direction = this.lastPointChanges;
   }
 
@@ -311,6 +314,8 @@ class Background extends GameObjectPart {}
 
 class Zone extends GameObject {
   initializeParts(points, classOfPart=Background) {
+    super.initializeParts();
+
     this.parts = [];
     for (let i = 0; i < points.length; i++) {
       this.parts.push(new classOfPart(points[i], this));
@@ -358,7 +363,7 @@ class Zone extends GameObject {
     let activeDistance;
 
     for (let i = 0; i < points.length; i++) {
-      activeDistance = this.#getDistanceFrom(point, points[i]);
+      activeDistance = getDistanceFrom(point, points[i]);
       if (activeDistance < minDistance) {
         nearestPoint = points[i];
         minDistance = activeDistance;
@@ -399,29 +404,18 @@ class Zone extends GameObject {
 
     return point;
   }
-
-  #getDistanceFrom(firstPoint, secondPoint) {
-    return Math.sqrt(this.#getVectorFrom(firstPoint, secondPoint).map(coordinate => coordinate**2).reduce((sum, elem) => sum + elem, 0));
-  }
-
-  #getVectorFrom(startPoint, endPoint) {
-    let vector = [];
-    for (let i = 0; i < startPoint.length; i++) {
-      vector.push(endPoint[i] - startPoint[i]);
-    }
-
-    return vector;
-  }
 }
 
 
-class Snake extends GameObject { //DO IT
+class Snake extends GameObject { //DO TO
   constructor(world, step=1) {
     super(world);
     this.step = step;
   }
 
   initializeParts(head, tailClass, tailsNumber) {
+    super.initializeParts();
+
     this.tailClassDefault = tailClass;
 
     this.head = head;
