@@ -89,10 +89,10 @@ class Renderer extends Timer {
 
 
 class World extends Timer {
-  constructor(objects, timeLoop) {
+  constructor(timeLoop) {
     super();
     this.time = timeLoop;
-    this.objects = objects;
+    this.objects = [];
   }
 
   process() {
@@ -129,14 +129,14 @@ class GameElement {
   }
 
   process() {
-    this.reactionToWorld(GameObject.everything);
+    this.reactionToWorld();
     this.internalProcesses();
   }
 
-  reactionToWorld(world) {
-    for (let i = 0; i < world.length; i++) {
-      if (this != world[i])
-        this.reactionToObject(world[i]);
+  reactionToWorld() {
+    for (let i = 0; i < this.world.objects.length; i++) {
+      if (this != this.world.objects[i])
+        this.reactionToObject(this.world.objects[i]);
     }
   }
 
@@ -148,7 +148,11 @@ class GameElement {
 
   reactionToPart(part) {}
 
-  internalProcesses() {}
+  internalProcesses() {
+    this.stateProcess();
+  }
+
+  stateProcess() {};
 
   die() {
     this.isAlive = false;
@@ -157,15 +161,33 @@ class GameElement {
 
 
 class GameObject extends GameElement {
-  static everything = [];
+  #world;
 
-  constructor() {
+  constructor(world) {
     super();
-    GameObject.everything.push(this);
+    this.world = world;
     this.parts = [];
   }
 
+  get world() {
+    return this.#world;
+  }
+
+  set world(world) {
+    if (this.#world != undefined)
+      this.#world.objects.splice(this.#world.objects.findIndex(this), 1);
+
+    this.#world = world;
+    this.#world.objects.push(this);
+  }
+
   initializeParts() {}
+
+  killParts() {
+    for (let i = 0; i < this.parts.length; i++) {
+      this.parts[i].die();
+    }
+  }
 
   internalProcesses() {
     this.processingParts();
@@ -182,15 +204,13 @@ class GameObject extends GameElement {
 
   die() {
     super.die();
-    GameObject.everything.splice(GameObject.everything.findIndex(this), 1);
+    this.killParts();
 
-    for (let i = 0; i < this.parts.length; i++) {
-      this.parts[i].die();
-    }
+    this.world = undefined;
   }
 
-  static createWrapperFor(part) {
-    let wrapper = new GameObject();
+  static createWrapperFor(part, world) {
+    let wrapper = new GameObject(world);
     wrapper.parts = [part];
     part.master = wrapper;
 
@@ -268,6 +288,11 @@ class GameObjectPart extends GameElement {
     }
 
     return lastChanges;
+  }
+
+  get world() {
+    if (this.master != undefined)
+      return this.master.world;
   }
 
   reactionToPart(part) {
@@ -391,8 +416,8 @@ class Zone extends GameObject {
 
 
 class Snake extends GameObject { //DO IT
-  constructor(step=1) {
-    super();
+  constructor(world, step=1) {
+    super(world);
     this.step = step;
   }
 
@@ -482,19 +507,16 @@ class Eggplant extends Fugitive {
 }
 
 
-GameObject.createWrapperFor(new Eggplant([3, 0], getSquareForm(26)));
+const theWorld = new World(new TimeLoop(1000));
 
-const snake = new Snake();
-snake.initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
+GameObject.createWrapperFor(new Eggplant([3, 0], getSquareForm(26)), theWorld);
+new Snake(theWorld).initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
+new Zone(theWorld).initializeParts(getSquareForm(26));
 
-const wall = new Zone();
-wall.initializeParts(getSquareForm(26));
-
-const render = new Renderer(
-  new World(GameObject.everything, new TimeLoop(1000)),
+new Renderer(
+  theWorld,
   [new HtmlWindow("game-window", document.getElementsByTagName("main")[0], HtmlSurface, "game-cell")],
   new TimeLoop(100)
-)
+).time.start();
 
-render.time.start();
-render.world.time.start();
+theWorld.time.start();
