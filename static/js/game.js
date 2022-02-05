@@ -341,30 +341,6 @@ class Zone extends GameObject {
     }
   }
 
-  reactionToPart(part) {
-    if (!this.isPointWithinBorders(part.point))
-      part.teleportTo(this.changePoint(part.point));
-  }
-
-  changePoint(point) {
-    for (let i = 0; i < point.length; i++) {
-      let locationRange = this.getLocationRange(point, i);
-
-      if (locationRange.join() == locationRange.map(item => undefined))
-        locationRange = this.getLocationRange(this.getNearestPointFrom(point), i);
-
-      if (point[i] < locationRange[0][i]) {
-        point[i] = locationRange[1][i];
-      }
-
-      else if (point[i] > locationRange[1][i]) {
-        point[i] = locationRange[0][i];
-      }
-    }
-
-    return point;
-  }
-
   isPointWithinBorders(point) {
     let myPoints = this.parts.map(part => part.point);
     for (let i = 0; i < myPoints.length; i++) {
@@ -420,6 +396,33 @@ class Zone extends GameObject {
   #getClearedPointFromAxis(point, axis) {
     point = Array.from(point);
     point[axis] = null;
+
+    return point;
+  }
+}
+
+
+class GameZone extends Zone {
+  reactionToPart(part) {
+    if (!this.isPointWithinBorders(part.point))
+      part.teleportTo(this.changePoint(part.point));
+  }
+
+  changePoint(point) {
+    for (let i = 0; i < point.length; i++) {
+      let locationRange = this.getLocationRange(point, i);
+
+      if (locationRange.join() == locationRange.map(item => undefined))
+        locationRange = this.getLocationRange(this.getNearestPointFrom(point), i);
+
+      if (point[i] < locationRange[0][i]) {
+        point[i] = locationRange[1][i];
+      }
+
+      else if (point[i] > locationRange[1][i]) {
+        point[i] = locationRange[0][i];
+      }
+    }
 
     return point;
   }
@@ -524,9 +527,9 @@ const theWorld = new World(new TimeLoop(1000));
 
 GameObject.createWrapperFor(new Eggplant([3, 0], getSquareForm(26)), theWorld);
 new Snake(theWorld).initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
-new Zone(theWorld).initializeParts(getSquareForm(26));
+new GameZone(theWorld).initializeParts(getSquareForm(26));
 
-new Renderer(
+new Renderer (
   theWorld,
   [new CanvasManager(document.getElementById("main-surface"), [20, 20])],
   new TimeLoop(100)
