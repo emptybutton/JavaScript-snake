@@ -429,7 +429,7 @@ class GameZone extends Zone {
 }
 
 
-class Snake extends GameObject { //DO TO
+class Snake extends GameObject {
   constructor(world, step=1) {
     super(world);
     this.step = step;
@@ -469,11 +469,13 @@ class Snake extends GameObject { //DO TO
   }
 
   moveParts() {
+    if (this.head.direction.join() == this.head.direction.map(number => 0).join()) return;
+
     for (let tact = 0; tact < this.step; tact++) {
       this.head.move(this.head.direction);
 
       for (let i = 1; i < this.parts.length; i++) {
-        this.parts[i].teleportTo(this.parts[i - 1].previousPoint);
+        this.parts[i].move(getVectorFrom(this.parts[i].point, this.parts[i - 1].previousPoint));
       }
     }
   }
@@ -504,7 +506,7 @@ class Fugitive extends GameObjectPart {
   }
 
   runAway() {
-    let newPoint = this.escapePoints[getRandomInt(this.escapePoints.length - 1)];
+    let newPoint = this.escapePoints[getRandomInt(0, this.escapePoints.length - 1)];
 
     if (this.point.join() == newPoint.join())
       this.runAway();
@@ -525,14 +527,19 @@ class Eggplant extends Fugitive {
 
 const theWorld = new World(new TimeLoop(1000));
 
-GameObject.createWrapperFor(new Eggplant([3, 0], getSquareForm(26)), theWorld);
-new Snake(theWorld).initializeParts(new SnakeHead([2, 0]), SnakeTail, 2);
+GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(26)), theWorld);
+
+const snake = new Snake(theWorld);
+snake.initializeParts(new SnakeHead([12, 12]), SnakeTail, 2);
+
 new GameZone(theWorld).initializeParts(getSquareForm(26));
+
+setInterval(() => {snake.head.direction = [getRandomInt(-1, 1), getRandomInt(-1, 1)]}, 4000); // for example
 
 new Renderer (
   theWorld,
   [new CanvasManager(document.getElementById("main-surface"), [20, 20])],
-  new TimeLoop(100)
+  new TimeLoop(500)
 ).time.start();
 
 theWorld.time.start();
