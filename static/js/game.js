@@ -13,6 +13,8 @@ import {
 class Surface {
   setColorTo(point, color) {}
 
+  setImageTo(point, imagePath) {}
+
   fill(color) {}
 
   get size() {}
@@ -48,6 +50,21 @@ class CanvasManager extends Surface {
       this.сellSize[0],
       this.сellSize[1]
     );
+  }
+
+  setImageTo(point, imagePath) {
+    let image = new Image();
+    image.src = imagePath;
+
+    image.onload = () => {
+      this.#context.drawImage(
+        image,
+        point[0]*this.сellSize[0],
+        point[1]*this.сellSize[1],
+        this.сellSize[0],
+        this.сellSize[1]
+      );
+    }
   }
 
   fill(color) {
