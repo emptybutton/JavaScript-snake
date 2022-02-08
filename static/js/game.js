@@ -11,9 +11,9 @@ import {
 
 
 class Surface {
-  renderPoint(point, color) {}
+  setColorTo(point, color) {}
 
-  paintOver(color) {}
+  fill(color) {}
 
   get size() {}
 }
@@ -40,7 +40,7 @@ class CanvasManager extends Surface {
     this.#backgroundColor = convertToCssRGBA(color);
   }
 
-  renderPoint(point, color) {
+  setColorTo(point, color) {
     this.#context.fillStyle = convertToCssRGBA(color);
     this.#context.fillRect(
       point[0]*this.сellSize[0],
@@ -50,7 +50,7 @@ class CanvasManager extends Surface {
     );
   }
 
-  paintOver(color) {
+  fill(color) {
     this.#context.fillStyle = this.#backgroundColor;
     this.#context.fillRect(0, 0, ...this.size);
   }
@@ -98,7 +98,7 @@ class Renderer extends Timer {
   }
 
   renderOnSurface(surface) {
-    surface.paintOver();
+    surface.fill();
     for (let i = 0; i < this.world.objects.length; i++) {
       this.renderObjectOnSurface(surface, this.world.objects[i]);
     }
@@ -107,7 +107,7 @@ class Renderer extends Timer {
   renderObjectOnSurface(surface, object) {
     for (let i = 0; i < object.parts.length; i++) {
       if (object.parts[i].color != undefined)
-        surface.renderPoint(object.parts[i].point, object.parts[i].color)
+        surface.setColorTo(object.parts[i].point, object.parts[i].color)
     }
   }
 }
