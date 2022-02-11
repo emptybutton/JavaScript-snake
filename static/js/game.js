@@ -1,4 +1,3 @@
-import {Space} from "./modules/multidimensional-pseudo-arrays.js";
 import {TimeLoop} from "./modules/time-managers.js";
 import {
   getRandomInt,
