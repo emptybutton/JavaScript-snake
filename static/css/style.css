@@ -74,8 +74,8 @@ button:active {
 
 .game-window {
   background-color: #fffdd9;
-  width: 524px;
-  height: 524px;
+  width: 504px;
+  height: 504px;
   border: solid 2px #fcd84e;
   border-radius: 2px;
   display: inline-block;

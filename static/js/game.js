@@ -543,7 +543,7 @@ class Eggplant extends Fugitive {
 
 const theWorld = new World(new TimeLoop(1000));
 
-GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(26)), theWorld);
+GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(20)), theWorld);
 
 const snakeHead = new SnakeHead([12, 12]);
 new Snake(theWorld).initializeParts(snakeHead, SnakeTail, 2);
@@ -559,12 +559,12 @@ document.addEventListener('keydown', (event) => {
     snakeHead.direction = [0, 1];
 });
 
-new GameZone(theWorld).initializeParts(getSquareForm(26));
+new GameZone(theWorld).initializeParts(getSquareForm(20));
 
 new Renderer (
   theWorld,
-  [new CanvasManager(document.getElementById("main-surface"), [20, 20])],
   new TimeLoop(500)
+  [new CanvasManager(document.getElementById("main-surface"), [25, 25])],
 ).time.start();
 
 theWorld.time.start();
