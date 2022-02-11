@@ -541,7 +541,7 @@ class Eggplant extends Fugitive {
 }
 
 
-const theWorld = new World(new TimeLoop(1000));
+const theWorld = new World(new TimeLoop(60));
 
 GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(20)), theWorld);
 
@@ -563,8 +563,8 @@ new GameZone(theWorld).initializeParts(getSquareForm(20));
 
 new Renderer (
   theWorld,
-  new TimeLoop(500)
   [new CanvasManager(document.getElementById("main-surface"), [25, 25])],
+  new TimeLoop(60)
 ).time.start();
 
 theWorld.time.start();
