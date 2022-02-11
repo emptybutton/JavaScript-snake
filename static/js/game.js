@@ -5,7 +5,8 @@ import {
   getDistanceFrom,
   getVectorFrom,
   foldPoints,
-  convertToCssRGBA
+  convertToCssRGBA,
+  inPresence
 } from "./modules/functions.js";
 
 
@@ -134,10 +135,11 @@ class World extends Timer {
     super();
     this.time = timeLoop;
     this.objects = [];
+    this.additionalProcesses = [];
   }
 
   process() {
-    this.reactionTo(this.processingObjects());
+    this.reactionTo(this.processingObjects().concat(this.callAdditionalProcesses()));
   }
 
   reactionTo(processes) {
@@ -152,11 +154,17 @@ class World extends Timer {
 
   processingObjects() {
     let resultsOfProcesses = [];
-    let result;
-
     for (let i = 0; i < this.objects.length; i++) {
-      result = this.objects[i].process();
-      resultsOfProcesses.push(result);
+      resultsOfProcesses.push(this.objects[i].process());
+    }
+
+    return resultsOfProcesses;
+  }
+
+  callAdditionalProcesses() {
+    let resultsOfProcesses = [];
+    for (let i = 0; i < this.additionalProcesses.length; i++) {
+      resultsOfProcesses.push(this.additionalProcesses[i]());
     }
 
     return resultsOfProcesses;
@@ -471,13 +479,17 @@ class Snake extends GameObject {
   }
 
   addTail(tail) {
-    if (tail == undefined) {
-      tail = new this.tailClassDefault(this.head.point);
-    }
+    if (tail == undefined) tail = new this.tailClassDefault(this.head.point);
 
-    tail.tail.master = this;
+    tail.master = this;
     tail.teleportTo(this.parts[this.parts.length - 1].previousPoint);
     this.parts.push(tail);
+  }
+
+  cutOff(number) {
+    for (let i = 0; i < number; i++) {
+      this.parts.pop();
+    }
   }
 
   stateProcess() {
@@ -507,6 +519,17 @@ class Snake extends GameObject {
 
 class SnakeHead extends GameObjectPart {
   static defaultColor = [252, 216, 78];
+
+  reactionToCellmate(cellmate) { //DO TO
+    if (cellmate instanceof Fugitive) {
+      cellmate.runAway();
+      this.master.addTail();
+    }
+
+    if (inPresence(cellmate, this.master.parts)) {
+      this.master.cutOff(this.master.parts.length - this.master.parts.indexOf(cellmate));
+    }
+  }
 }
 
 
@@ -528,10 +551,6 @@ class Fugitive extends GameObjectPart {
       this.runAway();
     else
       this.teleportTo(newPoint);
-  }
-
-  reactionToCellmate(cellmate) {
-    this.runAway();
   }
 }
 

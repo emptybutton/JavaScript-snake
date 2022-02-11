@@ -47,3 +47,12 @@ export function foldPoints(...points) {
 
   return finalPoint;
 }
+
+export function inPresence(object, array) {
+  for (let i = 0; i < array.length; i++) {
+    if (object == array[i])
+      return true;
+  }
+
+  return false;
+}
