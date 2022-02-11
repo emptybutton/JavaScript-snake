@@ -545,12 +545,21 @@ const theWorld = new World(new TimeLoop(1000));
 
 GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(26)), theWorld);
 
-const snake = new Snake(theWorld);
-snake.initializeParts(new SnakeHead([12, 12]), SnakeTail, 2);
+const snakeHead = new SnakeHead([12, 12]);
+new Snake(theWorld).initializeParts(snakeHead, SnakeTail, 2);
+
+document.addEventListener('keydown', (event) => {
+  if (event.code == 'KeyD' && snakeHead.direction.join() != [-1, 0].join())
+    snakeHead.direction = [1, 0];
+  else if (event.code == 'KeyA' && snakeHead.direction.join() != [1, 0].join())
+    snakeHead.direction = [-1, 0];
+  else if (event.code == 'KeyW' && snakeHead.direction.join() != [0, 1].join())
+    snakeHead.direction = [0, -1];
+  else if (event.code == 'KeyS' && snakeHead.direction.join() != [0, -1].join())
+    snakeHead.direction = [0, 1];
+});
 
 new GameZone(theWorld).initializeParts(getSquareForm(26));
-
-setInterval(() => {snake.head.direction = [getRandomInt(-1, 1), getRandomInt(-1, 1)]}, 4000); // for example
 
 new Renderer (
   theWorld,
