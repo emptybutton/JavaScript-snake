@@ -7,7 +7,7 @@
   <h2>Create your snake account!</h2>
 </header>
 <main>
-  <form method="post" id="user-form">
+  <form method="POST" id="user-form">
     <div class="structured-text">
       <div class="user-name">
         <label>name:</label>
@@ -28,8 +28,8 @@
       <span>I agree with all <a href="\static\text\policy.txt">papers</a></span>
     </div>
     <div class="form-footer">
-      <button type="submit" class="push-data">Sign up</button>
-      <span class="error" id="registration-error">{{error}}</span>
+      <button type="submit" class="push-data" >Sign up</button>
+      <span class="error" id="registration-error">{{get_flashed_messages(with_categories="error")[0][1]}}</span>
     </div>
   </form>
 </main>

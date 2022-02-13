@@ -96,7 +96,3 @@ button:active {
 }
 
 .js-text, .error {font-weight: bold}
-
-.for-authorization {display: none}
-
-.for-not-authorization {}

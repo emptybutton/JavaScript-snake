@@ -13,9 +13,11 @@
   </div>
 </main>
 <footer>
-  <a class="for-authorization" id="profile-way" href="/profile">profile</a>
-  <a class="for-not-authorization" id="registration-way" href="/registration">register</a>
-  <a class="for-not-authorization" id="authorization-way" href="/authorization">authorization</a>
+  {% if login_happened %}
+    <a id="profile-way" href="/profile">profile</a>
+  {% endif %}
+  <a id="registration-way" href="/registration">registration</a>
+  <a id="authorization-way" href="/authorization">authorization</a>
 </footer>
 <script type="module" src="static\js\main-page.js"></script>
 {% endblock %}
