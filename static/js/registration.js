@@ -1,33 +1,29 @@
-document.getElementById("user-form").addEventListener("submit", isDataCorrect);
+const form = document.getElementById("user-form")
+form.addEventListener("submit", isDataCorrect);
 
 function isDataCorrect(event) {
-  let name = form.accountName.value;
-  let email = form.accountEmail.value;
-  let pass = form.originalPassword.value;
-  let repass = form.confirmPassword.value;
-  let agree = form.agree.checked;
+  const name = form.accountName.value;
+  const email = form.accountEmail.value;
+  const originalPassword = form.originalPassword.value;
+  const confirmPassword = form.confirmPassword.value;
+  const isAgree = form.isAgree.checked;
 
-  let error = "";
+  let error;
 
-  if (hasEmptiness([name.trim(), email.trim(), pass.trim(), repass.trim()]) || !agree)
-    error = "required data is missing";
+  if ([name.trim(), email.trim(), originalPassword.trim(), confirmPassword.trim()].map((line) => Boolean(line)).includes(false))
+    error = "Fill in all the fields!";
   else if (!email.includes("@"))
-    error = "email entered incorrectly"
-  else if (pass != repass)
-    error = "repeated password is different";
+    error = "Email is not correct!";
+  else if (originalPassword != confirmPassword)
+    error = "Password mismatch!";
+  else if (!isAgree)
+    error = "Agree to it";
+  else
+    error = null
 
-  if (error != "") {
+
+  if (error != null) {
     event.preventDefault();
-
-    console.log(error);
     document.getElementById("registration-error").innerHTML = error;
   }
-}
-
-
-function hasEmptiness(array) {
-  for (let i = 0; i < array.length; i++) {
-    if (!array[i]) return true;
-  }
-  return false;
 }
