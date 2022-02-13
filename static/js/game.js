@@ -123,9 +123,98 @@ class Renderer extends Timer {
 
   renderObjectOnSurface(surface, object) {
     for (let i = 0; i < object.parts.length; i++) {
-      if (object.parts[i].color != undefined)
-        surface.setColorTo(object.parts[i].point, object.parts[i].color)
+      this.renderAvatarOnSurface(surface, object.parts[i].point, object.parts[i].avatar);
     }
+  }
+
+  renderAvatarOnSurface(surface, point, avatar) {
+    if (Array.isArray(avatar.pose))
+      surface.setColorTo(point, avatar.pose);
+    else if (avatar.pose == undefined)
+      {}
+    else
+      surface.setImageTo(point, avatar.pose);
+  }
+}
+
+
+class Avatar {
+  #activeSprite;
+
+  constructor(sprites, master) {
+    this.master = master;
+    this.sprites = sprites;
+  }
+
+  get activeSprite() {
+    return this.#activeSprite;
+  }
+
+  set activeSprite(sprite) {
+    if (sprite != this.#activeSprite)
+      sprite.phase = 0;
+
+    this.#activeSprite = sprite
+  }
+
+  get pose() {
+    this.activeSprite = this.getSpriteByMaster();
+    if (this.activeSprite != undefined)
+      return this.activeSprite.frame;
+  }
+
+  getSpriteByMaster() {
+    return this.getSpritesByFlag("default")[0];
+  }
+
+  getSpritesByFlag(flag) {
+    let sprites = [];
+    for (let i = 0; i < this.sprites.length; i++) {
+      if (JSON.stringify(this.sprites[i].flag) == JSON.stringify(flag))
+        sprites.push(this.sprites[i]);
+    }
+
+    return sprites;
+  }
+
+  getSpritesByDirection(direction) {
+    let sprites = [];
+    for (let i = 0; i < this.sprites.length; i++) {
+      if (JSON.stringify(this.sprites[i].direction) == JSON.stringify(direction))
+        sprites.push(this.sprites[i]);
+    }
+
+    return sprites;
+  }
+
+  static createTestAvatar(color, master) {
+    return new Avatar([new Sprite([color], "default")], master);
+  }
+}
+
+
+class Sprite {
+  #phase = 0;
+
+  constructor(frames, flag, direction) {
+    this.flag = flag;
+    this.direction = direction;
+    this.frames = frames;
+  }
+
+  get frame() {
+    return this.frames[this.#phase];
+  }
+
+  set phase(phase) {
+    this.#phase = phase;
+
+    if (this.#phase >= this.frames.length || this.#phase < 0)
+      this.#phase = 0;
+  }
+
+  get phase() {
+    return this.#phase;
   }
 }
 
@@ -271,34 +360,32 @@ class GameObject extends GameElement {
 
 
 class GameObjectPart extends GameElement {
-  static defaultColor;
-
-  #color;
+  #avatar;
   #point;
   #direction;
   #previousPoint;
 
-  constructor(point, master, color) {
+  constructor(point, master, avatar) {
     super();
     this.#point = Array.from(point);
-    this.color = color;
-
+    this.avatar = avatar;
     this.master = master;
   }
 
-  set color(color) {
-    if (color == undefined) {
-      this.#color = this.constructor.defaultColor;
-    } else {
-      this.#color = color;
-    }
+  static get defaultAvatar() {
+    return Avatar.createTestAvatar();
   }
 
-  get color() {
-    if (Array.isArray(this.#color))
-      return Array.from(this.#color);
-    else
-      return this.#color;
+  set avatar(avatar) {
+    if (avatar == undefined)
+      avatar = this.constructor.defaultAvatar;
+
+    this.#avatar = avatar;
+    this.#avatar.master = this;
+  }
+
+  get avatar() {
+    return this.#avatar;
   }
 
   teleportTo(point) {
@@ -518,9 +605,11 @@ class Snake extends GameObject {
 
 
 class SnakeHead extends GameObjectPart {
-  static defaultColor = [252, 216, 78];
+  static get defaultAvatar() {
+    return Avatar.createTestAvatar([252, 216, 78]);
+  }
 
-  reactionToCellmate(cellmate) { //DO TO
+  reactionToCellmate(cellmate) {
     if (cellmate instanceof Fugitive) {
       cellmate.runAway();
       this.master.addTail();
@@ -534,7 +623,9 @@ class SnakeHead extends GameObjectPart {
 
 
 class SnakeTail extends GameObjectPart {
-  static defaultColor = [255, 224, 107];
+  static get defaultAvatar() {
+    return Avatar.createTestAvatar([255, 224, 107]);
+  }
 }
 
 
@@ -556,7 +647,9 @@ class Fugitive extends GameObjectPart {
 
 
 class Eggplant extends Fugitive {
-  static defaultColor = [179, 39, 230];
+  static get defaultAvatar() {
+    return Avatar.createTestAvatar([179, 39, 230]);
+  }
 }
 
 
