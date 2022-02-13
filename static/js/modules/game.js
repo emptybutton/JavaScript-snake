@@ -1,16 +1,8 @@
-import {TimeLoop} from "./modules/time-managers.js";
-import {
-  getRandomInt,
-  getSquareForm,
-  getDistanceFrom,
-  getVectorFrom,
-  foldPoints,
-  convertToCssRGBA,
-  inPresence
-} from "./modules/functions.js";
+import {TimeLoop} from "./time-managers.js";
+import * as functions from "./functions.js";
 
 
-class Surface {
+export class Surface {
   setColorTo(point, color) {}
 
   setImageTo(point, imagePath) {}
@@ -21,7 +13,7 @@ class Surface {
 }
 
 
-class CanvasManager extends Surface {
+export class CanvasManager extends Surface {
   #canvas;
   #context;
   #backgroundColor;
@@ -39,11 +31,11 @@ class CanvasManager extends Surface {
   }
 
   set backgroundColor(color) {
-    this.#backgroundColor = convertToCssRGBA(color);
+    this.#backgroundColor = functions.convertToCssRGBA(color);
   }
 
   setColorTo(point, color) {
-    this.#context.fillStyle = convertToCssRGBA(color);
+    this.#context.fillStyle = functions.convertToCssRGBA(color);
     this.#context.fillRect(
       point[0]*this.сellSize[0],
       point[1]*this.сellSize[1],
@@ -96,7 +88,7 @@ class Timer {
 }
 
 
-class Renderer extends Timer {
+export class Renderer extends Timer {
   constructor(world, surfaces, timeLoop) {
     super();
     this.world = world;
@@ -138,7 +130,7 @@ class Renderer extends Timer {
 }
 
 
-class Avatar {
+export class Avatar {
   #activeSprite;
 
   constructor(sprites, master) {
@@ -193,7 +185,7 @@ class Avatar {
 }
 
 
-class Sprite {
+export class Sprite {
   #phase = 0;
 
   constructor(frames, flag, direction) {
@@ -219,7 +211,7 @@ class Sprite {
 }
 
 
-class World extends Timer {
+export class World extends Timer {
   constructor(timeLoop) {
     super();
     this.time = timeLoop;
@@ -298,7 +290,7 @@ class GameElement {
 }
 
 
-class GameObject extends GameElement {
+export class GameObject extends GameElement {
   #world;
 
   constructor(world) {
@@ -359,7 +351,7 @@ class GameObject extends GameElement {
 }
 
 
-class GameObjectPart extends GameElement {
+export class GameObjectPart extends GameElement {
   #avatar;
   #point;
   #direction;
@@ -394,7 +386,7 @@ class GameObjectPart extends GameElement {
   }
 
   move(vector) {
-    this.teleportTo(foldPoints(this.point, vector));
+    this.teleportTo(functions.foldPoints(this.point, vector));
     this.direction = this.lastPointChanges;
   }
 
@@ -439,10 +431,10 @@ class GameObjectPart extends GameElement {
 }
 
 
-class Background extends GameObjectPart {}
+export class Background extends GameObjectPart {}
 
 
-class Zone extends GameObject {
+export class Zone extends GameObject {
   initializeParts(points, classOfPart=Background) {
     super.initializeParts();
 
@@ -469,7 +461,7 @@ class Zone extends GameObject {
     let activeDistance;
 
     for (let i = 0; i < points.length; i++) {
-      activeDistance = getDistanceFrom(point, points[i]);
+      activeDistance = functions.getDistanceFrom(point, points[i]);
       if (activeDistance < minDistance) {
         nearestPoint = points[i];
         minDistance = activeDistance;
@@ -513,7 +505,7 @@ class Zone extends GameObject {
 }
 
 
-class GameZone extends Zone {
+export class GameZone extends Zone {
   reactionToPart(part) {
     if (!this.isPointWithinBorders(part.point))
       part.teleportTo(this.changePoint(part.point));
@@ -540,7 +532,7 @@ class GameZone extends Zone {
 }
 
 
-class Snake extends GameObject {
+export class Snake extends GameObject {
   constructor(world, step=1) {
     super(world);
     this.step = step;
@@ -590,7 +582,7 @@ class Snake extends GameObject {
       this.head.move(this.head.direction);
 
       for (let i = 1; i < this.parts.length; i++) {
-        this.parts[i].move(getVectorFrom(this.parts[i].point, this.parts[i - 1].previousPoint));
+        this.parts[i].move(functions.getVectorFrom(this.parts[i].point, this.parts[i - 1].previousPoint));
       }
     }
   }
@@ -604,7 +596,7 @@ class Snake extends GameObject {
 }
 
 
-class SnakeHead extends GameObjectPart {
+export class SnakeHead extends GameObjectPart {
   static get defaultAvatar() {
     return Avatar.createTestAvatar([252, 216, 78]);
   }
@@ -615,28 +607,28 @@ class SnakeHead extends GameObjectPart {
       this.master.addTail();
     }
 
-    if (inPresence(cellmate, this.master.parts)) {
+    if (functions.inPresence(cellmate, this.master.parts)) {
       this.master.cutOff(this.master.parts.length - this.master.parts.indexOf(cellmate));
     }
   }
 }
 
 
-class SnakeTail extends GameObjectPart {
+export class SnakeTail extends GameObjectPart {
   static get defaultAvatar() {
     return Avatar.createTestAvatar([255, 224, 107]);
   }
 }
 
 
-class Fugitive extends GameObjectPart {
+export class Fugitive extends GameObjectPart {
   constructor(point, escapePoints, master, color) {
     super(point, master, color);
     this.escapePoints = escapePoints;
   }
 
   runAway() {
-    let newPoint = this.escapePoints[getRandomInt(0, this.escapePoints.length - 1)];
+    let newPoint = this.escapePoints[functions.getRandomInt(0, this.escapePoints.length - 1)];
 
     if (this.point.join() == newPoint.join())
       this.runAway();
@@ -646,37 +638,8 @@ class Fugitive extends GameObjectPart {
 }
 
 
-class Eggplant extends Fugitive {
+export class Eggplant extends Fugitive {
   static get defaultAvatar() {
     return Avatar.createTestAvatar([179, 39, 230]);
   }
 }
-
-
-const theWorld = new World(new TimeLoop(60));
-
-GameObject.createWrapperFor(new Eggplant([15, 12], getSquareForm(20)), theWorld);
-
-const snakeHead = new SnakeHead([12, 12]);
-new Snake(theWorld).initializeParts(snakeHead, SnakeTail, 2);
-
-document.addEventListener('keydown', (event) => {
-  if (event.code == 'KeyD' && snakeHead.direction.join() != [-1, 0].join())
-    snakeHead.direction = [1, 0];
-  else if (event.code == 'KeyA' && snakeHead.direction.join() != [1, 0].join())
-    snakeHead.direction = [-1, 0];
-  else if (event.code == 'KeyW' && snakeHead.direction.join() != [0, 1].join())
-    snakeHead.direction = [0, -1];
-  else if (event.code == 'KeyS' && snakeHead.direction.join() != [0, -1].join())
-    snakeHead.direction = [0, 1];
-});
-
-new GameZone(theWorld).initializeParts(getSquareForm(20));
-
-new Renderer (
-  theWorld,
-  [new CanvasManager(document.getElementById("main-surface"), [25, 25])],
-  new TimeLoop(60)
-).time.start();
-
-theWorld.time.start();
