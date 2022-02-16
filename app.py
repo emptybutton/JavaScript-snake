@@ -33,5 +33,10 @@ def account(user_name):
     return render_template("profile.html", user_name=user_name)
 
 
+@app.errorhandler(404)
+def not_found_handler(error):
+    return render_template("not-found.html")
+
+
 if __name__ == "__main__":
       app.run()
