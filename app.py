@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect
 import validators
 
 app = Flask(__name__)
@@ -12,6 +12,9 @@ def index():
 
 @app.route("/authorization", methods=["POST", "GET"])
 def registration():
+    if request.method == "POST":
+        return redirect(url_for("account", user_name=request.form["accountName"])) #for a test
+
     return render_template("authorization.html")
 
 
@@ -19,8 +22,10 @@ def registration():
 def login():
     if request.method == "POST": ...
     flash("There will be a error", category="error")
-    
-    return render_template("registration.html")
+
+    response = make_response(render_template("registration.html"))
+
+    return response
 
 
 @app.route("/password-recovery")
