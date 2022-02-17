@@ -1,2 +1,4 @@
+import secrets
+
 DEBUG = True
-SECRET_KEY = "XFGlWaE2j?SY3!IPsyoUxC_q6JAnM8dO"
+SECRET_KEY = secrets.token_hex()
