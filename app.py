@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g
+from werkzeug.security import generate_password_hash
+
 from database_managers import *
+
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -7,6 +10,7 @@ app.config.from_object("config")
 
 def get_db_manager() -> DataBaseManager:
     return app.config["DATABASE_MANAGER"](app.config["DATABASE"])
+
 
 @app.route("/")
 def index():
@@ -24,11 +28,20 @@ def registration():
 @app.route("/registration", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
-        g.db_manager = app.config["DATABASE_MANAGER"](app.config["DATABASE"])
-        g.db_manager.connect()
-        g.db_manager.add_user(request.form["accountName"])
+        is_data_correct = all([
+            app.config["OVERSEER_FOR_DATA"].is_username_correct(request.form["accountName"]),
+            app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["accountEmail"]),
+            app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["originalPassword"]),
+            request.form["originalPassword"] == request.form["confirmPassword"],
+            request.form["isAgree"]
+        ])
 
-    flash("There will be a error", category="error")
+        if is_data_correct:
+            g.db_manager = get_db_manager()
+            g.db_manager.connect()
+            g.db_manager.add_user(name=request.form["accountName"], email=request.form["accountEmail"], password=generate_password_hash(request.form["originalPassword"]))
+        else:
+            flash("The server didn't like the sent data :(", category="error")
 
     response = make_response(render_template("registration.html"))
 
