@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g
-from functools import wraps
-import validators
+from database_managers import *
 
 app = Flask(__name__)
 app.config.from_object("config")
 
+
+def get_db_manager() -> DataBaseManager:
+    return app.config["DATABASE_MANAGER"](app.config["DATABASE"])
 
 @app.route("/")
 def index():
@@ -45,7 +47,7 @@ def account(user_name):
 
 @app.teardown_appcontext
 def close_db(error):
-    if g.hasattr("db_manager"):
+    if hasattr(g, "db_manager"):
         if g.db_manager.is_connected:
             g.db_manager.close()
 

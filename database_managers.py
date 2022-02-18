@@ -1,3 +1,5 @@
+from functools import wraps
+
 import sqlite3
 
 
@@ -14,14 +16,15 @@ class DataBaseManager:
     def close(self):
         self.__is_connected = False
 
-    @staticmethod
-    def for_connection_state(state):
+    @classmethod
+    def for_connection_state(cls, state):
         def decorator(method):
+            @wraps(method)
             def body(self, *args, **kwargs):
                 if self.is_connected != state:
                     raise TypeError ("need connection to database" if state else "need to disconnect from database")
 
-                return method(*args, **kwargs)
+                return method(self, *args, **kwargs)
 
             return body
         return decorator
@@ -32,8 +35,29 @@ class DataBaseManager:
 
 
 class IUserManipulator:
-    def add_user(): pass
+    def add_user(**kwargs): pass
 
     def delete_user(): pass
 
 
+class SQLiteManager(DataBaseManager, IUserManipulator):
+    def connect(self):
+        super().connect()
+        self.__connections = sqlite3.connect(self.database_root)
+
+
+    def close(self):
+        super().close()
+        self.__connections.close()
+
+
+    @DataBaseManager.for_connection_state(True)
+    def add_user(self, **kwargs):
+        cursor = self.__connections.cursor()
+        cursor.execute(f"""INSERT INTO users({', '.join(list(kwargs.keys()))}) VALUES({', '.join(['?']*len(kwargs.values()))})""", list(kwargs.values()))
+
+        self.__connections.commit()
+
+
+    @DataBaseManager.for_connection_state(True)
+    def delete_user(self): pass
