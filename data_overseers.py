@@ -46,21 +46,27 @@ class IUserDataOverseer(IOverseer):
     USER_PASSWORD_SIZE = [1, infinity]
     FORBIDDEN_LETTERS_FOR_USER_URL = []
 
-        return validators.length(username, min=self.USERNAME_SIZE[0], max=self.USERNAME_SIZE[1])
-        return all([validators.email(user_email), validators.length(user_email.split("@")[0], min=self.USER_EMAIL_SIZE[0], max=self.USER_EMAIL_SIZE[1])])
-        return validators.length(user_password, min=self.USER_PASSWORD_SIZE[0], max=self.USER_PASSWORD_SIZE[1])
-        return all(map(lambda letter: not letter in self.FORBIDDEN_LETTERS_FOR_USER_URL, user_url))
     @IOverseer.default_returns_response_by(sign=True)
     def is_username_correct(self, username) -> OverseerResponse:
+        if not validators.length(username, min=self.USERNAME_SIZE[0], max=self.USERNAME_SIZE[1]):
+            return OverseerResponse(False, f"Name size must be in {self.USERNAME_SIZE} diopozon")
 
     @IOverseer.default_returns_response_by(sign=True)
     def is_user_email_correct(self, user_email) -> OverseerResponse:
+        if not validators.email(user_email):
+            return OverseerResponse(False, "Email is incorrect")
+        elif not validators.length(user_email.split("@")[0], min=self.USER_EMAIL_SIZE[0], max=self.USER_EMAIL_SIZE[1]):
+            return OverseerResponse(False, f"Email size must be in {self.USER_EMAIL_SIZE} diopozon")
 
     @IOverseer.default_returns_response_by(sign=True)
     def is_user_password_correct(self, user_password) -> OverseerResponse:
+        if not validators.length(user_password, min=self.USER_PASSWORD_SIZE[0], max=self.USER_PASSWORD_SIZE[1]):
+            return OverseerResponse(False, f"Password size must be in {self.USER_PASSWORD_SIZE} diopozon")
 
     @IOverseer.default_returns_response_by(sign=True)
     def is_user_url_correct(self, user_url) -> OverseerResponse:
+        if not all(tuple(map(lambda letter: not letter in self.FORBIDDEN_LETTERS_FOR_USER_URL, user_url))):
+            return OverseerResponse(False, f"User url must not contain letters: {self.FORBIDDEN_LETTERS_FOR_USER_URL}")
 
 
 class MainOverseer(Overseer, IUserDataOverseer):
