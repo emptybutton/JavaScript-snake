@@ -16,8 +16,8 @@ class DataBaseManager:
     def close(self):
         self.__is_connected = False
 
-    @classmethod
-    def for_connection_state(cls, state):
+    @staticmethod
+    def for_connection_state(state):
         def decorator(method):
             @wraps(method)
             def body(self, *args, **kwargs):
@@ -83,7 +83,7 @@ class SQLiteManager(DataBaseManager, IUserManipulator, ITableManipulator):
     @DataBaseManager.for_connection_state(True)
     def get_columns_from(self, table: str, **atributes) -> tuple:
         cursor = self.__connections.cursor()
-        cursor.execute(f"SELECT * FROM {table}" + (f"WHERE {', '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values()))
+        cursor.execute(f"SELECT * FROM {table}" + (f" WHERE {', '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values()))
 
         return tuple(cursor.fetchall())
 
