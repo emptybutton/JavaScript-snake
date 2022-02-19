@@ -30,8 +30,8 @@
     <div class="form-footer">
       <button type="submit" class="push-data" >Sign up</button>
       <span class="error" id="registration-error">
-        {% if get_flashed_messages(with_categories="error") %}
-          {{get_flashed_messages(with_categories="error")[0][1]}}
+        {% if get_flashed_messages(with_categories="registration_result") %}
+          {{get_flashed_messages(with_categories="registration_result")[0][1]}}
         {% endif %}
       </span>
     </div>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g
+from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
 from werkzeug.security import generate_password_hash
 
 from database_managers import *
@@ -18,7 +18,7 @@ def index():
 
 
 @app.route("/authorization", methods=["POST", "GET"])
-def registration():
+def authorization():
     if request.method == "POST":
         return redirect(url_for("account", user_name=request.form["accountName"])) #for a test
 
@@ -26,22 +26,33 @@ def registration():
 
 
 @app.route("/registration", methods=["POST", "GET"])
-def login():
+def registration():
     if request.method == "POST":
-        is_data_correct = all([
-            app.config["OVERSEER_FOR_DATA"].is_username_correct(request.form["accountName"]),
-            app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["accountEmail"]),
-            app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["originalPassword"]),
-            request.form["originalPassword"] == request.form["confirmPassword"],
-            request.form["isAgree"]
-        ])
+        g.db_manager = get_db_manager()
+        g.db_manager.connect()
 
-        if is_data_correct:
-            g.db_manager = get_db_manager()
-            g.db_manager.connect()
-            g.db_manager.add_user(name=request.form["accountName"], email=request.form["accountEmail"], password=generate_password_hash(request.form["originalPassword"]))
+        nitpicking_of_overseer = tuple(filter(
+            lambda response: not response.sign,
+            (
+                app.config["OVERSEER_FOR_DATA"].is_username_correct(request.form["accountName"]),
+                app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["accountEmail"]),
+                app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["originalPassword"])
+            )
+        ))
+
+        if nitpicking_of_overseer:
+            result_message = nitpicking_of_overseer[0].message
+        elif request.form["originalPassword"] != request.form["confirmPassword"]:
+            result_message = "Password mismatch"
+        elif len(g.db_manager.get_info_from("users", email=request.form["accountEmail"])) > 0:
+            result_message = "An account with this email already exists :("
+        elif not request.form["isAgree"]:
+            result_message = "To register, you must agree to our policy"
         else:
-            flash("The server didn't like the sent data :(", category="error")
+            result_message = f"User {request.form['accountName']} is registered!"
+            g.db_manager.add_user(name=request.form["accountName"], email=request.form["accountEmail"], password=generate_password_hash(request.form["originalPassword"]))
+
+        flash(result_message, category="registration_result")
 
     response = make_response(render_template("registration.html"))
 
