@@ -9,7 +9,16 @@ app.config.from_object("config")
 
 
 def get_db_manager() -> DataBaseManager:
-    return app.config["DATABASE_MANAGER"](app.config["DATABASE"])
+    return app.config["PROTOTYPE_OF_DATABASE_MANAGER"](app.config["DATABASE"])
+
+
+def initialise_database():
+    with get_db_manager() as manager:
+        with open("static/sql/initialise_database.sql") as sql_file:
+            manager._execute_script(sql_file.read())
+
+
+initialise_database()
 
 
 @app.route("/")
@@ -50,7 +59,7 @@ def registration():
             result_message = "To register, you must agree to our policy"
         else:
             result_message = f"User {request.form['accountName']} is registered!"
-            g.db_manager.add_user(name=request.form["accountName"], email=request.form["accountEmail"], password=generate_password_hash(request.form["originalPassword"]))
+            g.db_manager.add_column_to("users", name=request.form["accountName"], email=request.form["accountEmail"], password=generate_password_hash(request.form["originalPassword"]))
 
         flash(result_message, category="registration_result")
 
@@ -82,4 +91,4 @@ def not_found_handler(error):
 
 
 if __name__ == "__main__":
-      app.run()
+    app.run()

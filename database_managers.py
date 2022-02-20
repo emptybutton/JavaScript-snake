@@ -10,14 +10,15 @@ class DataBaseManager:
         self.database_root = database_root
         self.__is_connected = False
 
-    def connect(self):
-        self.__is_connected = True
+    def __enter__(self):
+        self.connect()
+        return self
 
-    def close(self):
-        self.__is_connected = False
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.disconnect()
 
     @staticmethod
-    def for_connection_state(state):
+    def for_connection_state(state: bool):
         def decorator(method):
             @wraps(method)
             def body(self, *args, **kwargs):
@@ -29,67 +30,79 @@ class DataBaseManager:
             return body
         return decorator
 
+    def connect(self) -> None:
+        self.__is_connected = True
+
+    def disconnect(self) -> None:
+        self.__is_connected = False
+
+    def _custom_request(self, request: str) -> any: pass
+
+    def _execute_script(self, script: str) -> any: pass
+
     @property
-    def is_connected(self):
+    def is_connected(self) -> bool:
         return self.__is_connected
 
 
-class IUserManipulator:
-    def add_user(self, **kwargs): pass
+class IColumnChanger:
+    def add_column_to(self, table: str, **atributes) -> None: pass
 
-    def delete_user(self): pass
-
-
-class ITableManipulator:
-    def get_columns_from(self, table: str, **atributes) -> tuple: pass
-
-    def get_names_of_poles_from(self, table: str) -> tuple: pass
+    def delete_columns_from(self, table: str, **atributes) -> None: pass
 
 
-class SQLiteManager(DataBaseManager, IUserManipulator, ITableManipulator):
+class IColumnSupplier:
+    def get_info_from(self, table: str, **atributes) -> tuple[dict]: pass
+
+    def get_names_of_poles_from(self, table: str) -> tuple[str]: pass
+
+    def get_columns_from(self, table: str, **atributes) -> tuple[str]: pass
+
+
+class SQLiteManager(DataBaseManager):
     @DataBaseManager.for_connection_state(False)
-    def connect(self):
+    def connect(self) -> None:
         super().connect()
         self.__connections = sqlite3.connect(self.database_root)
 
     @DataBaseManager.for_connection_state(True)
-    def close(self):
-        super().close()
+    def disconnect(self) -> None:
+        super().disconnect()
         self.__connections.close()
 
     @DataBaseManager.for_connection_state(True)
-    def add_user(self, **kwargs):
+    def _custom_request(self, request: str, data: tuple = tuple()) -> tuple:
         cursor = self.__connections.cursor()
-        cursor.execute(f"""INSERT INTO users({', '.join(list(kwargs.keys()))}) VALUES({', '.join(['?']*len(kwargs.values()))})""", list(kwargs.values()))
+        cursor.execute(request, data)
 
         self.__connections.commit()
-
-    @DataBaseManager.for_connection_state(True)
-    def delete_user(self): pass
-
-    @DataBaseManager.for_connection_state(True)
-    def get_info_from(self, table: str, **atributes) -> tuple:
-        keys = self.get_names_of_poles_from(table)
-        data = self.get_columns_from(table, **atributes)
-        structured_data = []
-
-        template = dict.fromkeys(keys)
-
-        for user_index in range(len(data)):
-            structured_data.append({keys[i]: data[user_index][i] for i in range(len(template))})
-
-        return tuple(structured_data)
-
-    @DataBaseManager.for_connection_state(True)
-    def get_columns_from(self, table: str, **atributes) -> tuple:
-        cursor = self.__connections.cursor()
-        cursor.execute(f"SELECT * FROM {table}" + (f" WHERE {', '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values()))
 
         return tuple(cursor.fetchall())
 
     @DataBaseManager.for_connection_state(True)
-    def get_names_of_poles_from(self, table: str) -> tuple:
-        cursor = self.__connections.cursor()
-        cursor.execute(f"""PRAGMA table_info({table})""")
+    def _execute_script(self, script: str) -> tuple:
+        return tuple(map(self._custom_request, script.split(";")))
 
-        return tuple(map(lambda item: item[1], cursor.fetchall()))
+    @DataBaseManager.for_connection_state(True)
+    def get_info_from(self, table: str, **atributes) -> tuple[dict]:
+        return self.__convert_to(self.get_columns_from(table, **atributes), self.get_names_of_poles_from(table))
+
+    @DataBaseManager.for_connection_state(True)
+    def get_names_of_poles_from(self, table: str) -> tuple:
+        return tuple(map(lambda item: item[1], self._custom_request(f"""PRAGMA table_info({table})""")))
+
+    @DataBaseManager.for_connection_state(True)
+    def get_columns_from(self, table: str, **atributes) -> tuple:
+        return tuple(self._custom_request(f"SELECT * FROM {table}" + (f" WHERE {', '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes)))
+
+    @DataBaseManager.for_connection_state(True)
+    def add_column_to(self, table: str, **atributes) -> None:
+        self._custom_request(f"""INSERT INTO {table}({', '.join(list(atributes.keys()))}) VALUES({', '.join(['?']*len(atributes.values()))})""", tuple(atributes.values()))
+
+    @DataBaseManager.for_connection_state(True)
+    def delete_columns_from(self, table: str, **atributes) -> None:
+        self._custom_request(f"DELETE FROM {table}" + (f" WHERE {', '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values()))
+
+    def __convert_to(self, values: tuple, format: tuple):
+        template = dict.fromkeys(format)
+        return tuple([{format[i]: values[user_index][i] for i in range(len(template))} for user_index in range(len(values))])
