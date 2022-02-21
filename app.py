@@ -1,7 +1,7 @@
 from os import path
 
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from database_managers import *
 
@@ -29,7 +29,16 @@ def index():
 @app.route("/authorization", methods=["POST", "GET"])
 def authorization():
     if request.method == "POST":
-        return redirect(url_for("account", user_name=request.form["accountName"])) #for a test
+        g.db_manager = get_db_manager()
+        g.db_manager.connect()
+
+        for user in g.db_manager.get_info_from("users", login=request.form["accountLogin"]):
+            if check_password_hash(user["password"], request.form["accountPassword"]):
+                session["user_id"] = g.db_manager.get_info_from("users", login=request.form["accountLogin"])[0]["id"]
+
+                return redirect(url_for("profile", user_login=request.form["accountLogin"])), 301
+
+        flash("Check out your data!", category="denied")
 
     return render_template("authorization.html")
 
