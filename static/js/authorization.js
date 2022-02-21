@@ -3,6 +3,6 @@ form.addEventListener("submit", accountLogin);
 
 
 function accountLogin(event) {
-  let name = form.accountName.value;
+  let name = form.accountLogin.value;
   let pass = form.accountPassword.value;
 }

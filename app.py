@@ -23,7 +23,7 @@ def initialise_database():
 
 @app.route("/")
 def index():
-    return render_template("index.html", login_happened=False)
+    return render_template("index.html")
 
 
 @app.route("/authorization", methods=["POST", "GET"])
@@ -58,7 +58,7 @@ def registration():
         elif not request.form["isAgree"]:
             result_message = "To register, you must agree to our policy"
         else:
-            result_message = f"User {request.form['accountName']} is registered!"
+            result_message = f"User \"{request.form['accountName']}\" is registered!"
             g.db_manager.add_column_to("users", name=request.form["accountName"], login=request.form["accountLogin"], password=generate_password_hash(request.form["originalPassword"]))
 
         flash(result_message, category="registration_result")
@@ -73,9 +73,9 @@ def password_recovery():
     return render_template("password-recovery.html")
 
 
-@app.route("/users/<string:user_name>")
-def account(user_name):
-    return render_template("profile.html", user_name=user_name)
+@app.route("/users/<string:user_login>")
+def profile(user_login):
+    return render_template("profile.html", user_login=user_login)
 
 
 @app.teardown_appcontext
