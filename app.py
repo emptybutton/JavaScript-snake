@@ -1,3 +1,5 @@
+from os import path
+
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
 from werkzeug.security import generate_password_hash
 
@@ -13,12 +15,10 @@ def get_db_manager() -> DataBaseManager:
 
 
 def initialise_database():
-    with get_db_manager() as manager:
-        with open("static/sql/initialise_database.sql") as sql_file:
-            manager._execute_script(sql_file.read())
-
-
-initialise_database()
+    with open(app.config["DATABASE"], "w"):
+        with get_db_manager() as manager:
+            with open("static/sql/initialise_database.sql") as sql_file:
+                manager._execute_script(sql_file.read())
 
 
 @app.route("/")
@@ -89,6 +89,9 @@ def close_db(error):
 def not_found_handler(error):
     return render_template("not-found.html"), 404
 
+
+if not path.isfile(app.config['DATABASE']):
+    initialise_database()
 
 if __name__ == "__main__":
     app.run()
