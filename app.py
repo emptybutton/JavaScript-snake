@@ -43,6 +43,14 @@ def authorization():
     return render_template("authorization.html")
 
 
+@app.route("/sign-out")
+def logout():
+    if "user_id" in session.keys():
+        del session["user_id"]
+
+    return redirect(url_for("index")), 301
+
+
 @app.route("/registration", methods=["POST", "GET"])
 def registration():
     if request.method == "POST":
