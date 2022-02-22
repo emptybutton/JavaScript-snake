@@ -3,7 +3,7 @@ from os import path
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from database_managers import *
+from modules.database_managers import *
 
 
 app = Flask(__name__)
@@ -107,8 +107,8 @@ def not_found_handler(error):
     return render_template("not-found.html"), 404
 
 
-if not path.isfile(app.config['DATABASE']):
-    initialise_database()
-
 if __name__ == "__main__":
+    if not path.isfile(app.config['DATABASE']):
+        initialise_database()
+
     app.run()

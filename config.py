@@ -1,8 +1,8 @@
 from os import path
 import secrets
 
-from database_managers import SQLiteManager
-from data_overseers import MainOverseer
+from modules.database_managers import SQLiteManager
+from modules.data_overseers import MainOverseer
 
 
 DEBUG = True
