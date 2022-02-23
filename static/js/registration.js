@@ -1,27 +1,19 @@
 const form = document.getElementById("user-form")
-form.addEventListener("submit", isDataCorrect);
+form.addEventListener("submit", manageForm);
 
-function isDataCorrect(event) {
-  const name = form.accountName.value;
-  const login = form.accountLogin.value;
-  const originalPassword = form.originalPassword.value;
-  const confirmPassword = form.confirmPassword.value;
-  const isAgree = form.isAgree.checked;
-
+function manageForm(event) {
   let error;
 
-  if ([name.trim(), login.trim(), originalPassword.trim(), confirmPassword.trim()].map((line) => Boolean(line)).includes(false))
+  if ([form.name.value.trim(), form.email.value.trim(), form.password.value.trim()].map((line) => Boolean(line)).includes(false))
     error = "Fill in all the fields!";
-  else if (originalPassword != confirmPassword)
-    error = "Password mismatch!";
-  else if (!isAgree)
+  else if (!form.isAgree.checked)
     error = "Agree to it";
   else
     error = null
 
 
-  if (error != null) {
+  if (error) {
+    alert(error) //Test ficha
     event.preventDefault();
-    document.getElementById("registration-error").innerHTML = error;
   }
 }
