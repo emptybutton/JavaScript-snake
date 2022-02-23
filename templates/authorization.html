@@ -1,25 +1,20 @@
-{% extends 'secondary.html' %}
+{% extends 'base.html' %}
 
 {% block title %}JSnake login{% endblock %}
 
-{% block main %}
+{% block body %}
 <header>
   <h2>Authorization to snake account</h2>
 </header>
 <main>
   <form method="POST" id="account-form">
     <div class="structured-text">
-      <div class="account-login">
-        <label>login:</label>
-        <input type="text" name="accountLogin" placeholder="Account login" maxlength="256" required>
+      <div class="login">
+        <input type="text" name="login" placeholder="Username or email" maxlength="256" required>
       </div>
-      <div class="account-password">
-        <label>password:</label>
-        <input type="password" name="accountPassword" placeholder="Account password" maxlength="256" required>
-        <a class="ghost" href="/password-recovery">I forgot</a>
+      <div class="password">
+        <input type="password" name="password" placeholder="Password" maxlength="256" required>
       </div>
-    </div>
-    <div class="form-footer">
       <button type="submit" class="push-data">Sign up</button>
     </div>
   </form>
