@@ -42,10 +42,10 @@ class IOverseer:
 
 class IUserDataOverseer(IOverseer):
     USERNAME_SIZE = [1, infinity]
-    USER_LOGIN_SIZE = [1, infinity]
+    USER_URL_SIZE = [1, infinity]
     USER_EMAIL_SIZE = [1, infinity]
     USER_PASSWORD_SIZE = [1, infinity]
-    FORBIDDEN_LETTERS_FOR_USER_LOGIN = []
+    FORBIDDEN_LETTERS_FOR_USER_URL = []
 
     @IOverseer.default_returns_response_by(sign=True)
     def is_username_correct(self, username) -> OverseerResponse:
@@ -53,12 +53,15 @@ class IUserDataOverseer(IOverseer):
             return OverseerResponse(False, f"Name size must be in {self.USERNAME_SIZE} diopozon")
 
     @IOverseer.default_returns_response_by(sign=True)
-    def is_user_login_correct(self, login) -> OverseerResponse:
-        if not validators.length(login, min=self.USER_LOGIN_SIZE[0], max=self.USER_LOGIN_SIZE[1]):
-            return OverseerResponse(False, f"Login size must be in {self.USER_LOGIN_SIZE} diopozon")
+    def is_user_url_correct(self, url) -> OverseerResponse:
+        if not validators.length(url, min=self.USER_URL_SIZE[0], max=self.USER_URL_SIZE[1]):
+            return OverseerResponse(False, f"URL size must be in {self.USER_URL_SIZE} diopozon")
 
-        elif not all(tuple(map(lambda letter: not letter in self.FORBIDDEN_LETTERS_FOR_USER_LOGIN, login))):
-            return OverseerResponse(False, f"Login must not contain letters: {self.FORBIDDEN_LETTERS_FOR_USER_LOGIN}")
+        elif not validators.url(f"http://{url}.xyz", public=True):
+            return OverseerResponse(False, f"URL is not correct")
+
+        elif not all(tuple(map(lambda letter: not letter in self.FORBIDDEN_LETTERS_FOR_USER_URL, url))):
+            return OverseerResponse(False, f"URL must not contain letters: {self.FORBIDDEN_LETTERS_FOR_USER_URL}")
 
     @IOverseer.default_returns_response_by(sign=True)
     def is_user_email_correct(self, user_email) -> OverseerResponse:

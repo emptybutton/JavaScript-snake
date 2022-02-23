@@ -32,11 +32,13 @@ def authorization():
         g.db_manager = get_db_manager()
         g.db_manager.connect()
 
-        for user in g.db_manager.get_info_from("users", login=request.form["accountLogin"]):
-            if check_password_hash(user["password"], request.form["accountPassword"]):
-                session["user_id"] = g.db_manager.get_info_from("users", login=request.form["accountLogin"])[0]["id"]
+        discover_login = "email" if app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["login"]).sign else "url"
 
-                return redirect(url_for("profile", user_login=request.form["accountLogin"])), 301
+        for user in g.db_manager.get_info_from("users", **{discover_login: request.form["login"]}):
+            if check_password_hash(user["password"], request.form["password"]):
+                session["user_id"] = g.db_manager.get_info_from("users", **{discover_login: request.form["login"]})[0]["id"]
+
+                return redirect(url_for("profile", user_login=user["url"])), 301
 
         flash("Check out your data!", category="denied")
 
@@ -60,23 +62,23 @@ def registration():
         nitpicking_of_overseer = tuple(filter(
             lambda response: not response.sign,
             (
-                app.config["OVERSEER_FOR_DATA"].is_username_correct(request.form["accountName"]),
-                app.config["OVERSEER_FOR_DATA"].is_user_login_correct(request.form["accountLogin"]),
-                app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["originalPassword"])
+                app.config["OVERSEER_FOR_DATA"].is_user_url_correct(request.form["name"]),
+                app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["email"]),
+                app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["password"])
             )
         ))
 
         if nitpicking_of_overseer:
             result_message = nitpicking_of_overseer[0].message
-        elif request.form["originalPassword"] != request.form["confirmPassword"]:
-            result_message = "Password mismatch"
-        elif len(g.db_manager.get_info_from("users", login=request.form["accountLogin"])) > 0:
-            result_message = "An account with this login already exists :("
+        elif len(g.db_manager.get_info_from("users", url=request.form["name"])) > 0:
+            result_message = "An account with this url already exists :("
+        elif len(g.db_manager.get_info_from("users", email=request.form["email"])) > 0:
+            result_message = "An account with this email already exists :("
         elif not request.form["isAgree"]:
             result_message = "To register, you must agree to our policy"
         else:
-            result_message = f"User \"{request.form['accountName']}\" is registered!"
-            g.db_manager.add_column_to("users", name=request.form["accountName"], login=request.form["accountLogin"], password=generate_password_hash(request.form["originalPassword"]))
+            result_message = f"User \"{request.form['name']}\" is registered!"
+            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]))
 
         flash(result_message, category="registration_result")
 
@@ -111,4 +113,4 @@ if __name__ == "__main__":
     if not path.isfile(app.config['DATABASE']):
         initialise_database()
 
-    app.run()
+    app.run(port="1280")
