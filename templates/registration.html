@@ -1,39 +1,27 @@
-{% extends 'secondary.html' %}
+{% extends 'base.html' %}
 
 {% block title %}JSnake registration{% endblock %}
 
-{% block main %}
+{% block body %}
 <header>
   <h2>Create your snake account!</h2>
 </header>
 <main>
-  <form method="POST" id="user-form">
+  <form method="post" id="user-form">
     <div class="structured-text">
-      <div class="user-name">
-        <label>name:</label>
-        <input type="text" name="accountName" placeholder="Some name" maxlength="256">
+      <div id="user-name">
+        <input type="text" name="url" placeholder="Some name" maxlength="256">
       </div>
-      <div class="user-login">
-        <label>login:</label>
-        <input type="text" name="accountLogin" placeholder="Some login" maxlength="256">
+      <div id="user-email">
+        <input type="text" name="email" placeholder="Some email" maxlength="256">
       </div>
-    </div>
-    <div class="user-password">
-      <label>password:</label>
-      <input type="password" name="originalPassword" placeholder="Account password" maxlength="256">
-      <input type="password" name="confirmPassword" placeholder="Confirm that password" maxlength="256">
-    </div>
-    <div class="some-papers">
-      <input type="checkbox" name="isAgree">
-      <span>I agree with all <a href="\static\text\policy.txt">papers</a></span>
-    </div>
-    <div class="form-footer">
+      <div id="user-password">
+        <input type="password" name="password" placeholder="Account password" maxlength="256">
+      </div>
+      <div class="some-papers">
+        <input type="checkbox" name="isAgree">I agree with all<a href="\static\text\policy.txt">papers</a>
+      </div>
       <button type="submit" class="push-data" >Sign up</button>
-      <span class="error" id="registration-error">
-        {% if get_flashed_messages(with_categories="registration_result") %}
-          {{get_flashed_messages(with_categories="registration_message")[0][1]}}
-        {% endif %}
-      </span>
     </div>
   </form>
 </main>
