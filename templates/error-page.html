@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Page not found - JSnake{% endblock %}
+
+{% block body %}
+<div>
+  <span id="error-code">{% block error_code %}{% endblock %}</span><br>
+  <span id="error-description">{% block error_description %}{% endblock %}</span>
+</div>
+{% endblock %}

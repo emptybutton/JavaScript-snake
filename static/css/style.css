@@ -41,9 +41,10 @@ input[type="text"], input[type="password"] {
   width: 230px;
 }
 
-header {margin-bottom: 10px}
-
-footer {margin-top: 12px}
+div {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 
 .ghost {
   position: absolute;
@@ -56,6 +57,7 @@ footer {margin-top: 12px}
   background-color: #e1e1fa;
   border: solid 2px #b4b4d2;
   border-radius: 5px;
+  margin-top: 3px;
   display: inline-block;
 }
 
@@ -93,6 +95,18 @@ button:active {
 }
 
 .error {
+  color: #282828;
+}
+
+#error-code {
+  font-size: 122px;
+}
+
+#error-description {
+  font-size: 20px;
+}
+
+#error-description, #error-code {
   color: #282828;
 }
 

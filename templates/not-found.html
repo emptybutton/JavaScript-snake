@@ -1,7 +1,4 @@
-{% extends 'base.html' %}
+{% extends "error-page.html" %}
 
-{% block title %}Get away from here{% endblock %}
-
-{% block body %}
-  <h3 class="sender">You appear to be lost :(</h3>
-{% endblock %}
+{% block error_code %}404{% endblock %}
+{% block error_description %}You appear to be lost :({% endblock %}
