@@ -51,3 +51,7 @@ export class TimeLoop {
       this.stop();
   }
 }
+
+export function getFrequencyByFps(fps) {
+  return Math.floor(1000 / fps);
+}
