@@ -596,11 +596,7 @@ export class Snake extends GameObject {
 }
 
 
-export class SnakeHead extends GameObjectPart {
-  static get defaultAvatar() {
-    return Avatar.createTestAvatar([252, 216, 78]);
-  }
-
+export class SnakePart extends GameObjectPart {
   reactionToCellmate(cellmate) {
     if (cellmate instanceof Fugitive) {
       cellmate.runAway();
@@ -614,7 +610,14 @@ export class SnakeHead extends GameObjectPart {
 }
 
 
-export class SnakeTail extends GameObjectPart {
+export class SnakeHead extends SnakePart {
+  static get defaultAvatar() {
+    return Avatar.createTestAvatar([252, 216, 78]);
+  }
+}
+
+
+export class SnakeTail extends SnakePart {
   static get defaultAvatar() {
     return Avatar.createTestAvatar([255, 224, 107]);
   }
@@ -640,6 +643,6 @@ export class Fugitive extends GameObjectPart {
 
 export class Eggplant extends Fugitive {
   static get defaultAvatar() {
-    return Avatar.createTestAvatar([179, 39, 230]);
+    return Avatar.createTestAvatar([121, 105, 209]);
   }
 }
