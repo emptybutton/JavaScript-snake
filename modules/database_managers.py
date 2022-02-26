@@ -93,7 +93,7 @@ class SQLiteManager(DataBaseManager):
 
     @DataBaseManager.for_connection_state(True)
     def get_columns_from(self, table: str, **atributes) -> tuple:
-        return tuple(self._custom_request(f"SELECT * FROM {table}" + (f" WHERE {' and '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values())))
+        return tuple(self._custom_request(f"SELECT * FROM {table} {self.__create_sqlite_condition_from(atributes.keys())}", tuple(atributes.values())))
 
     @DataBaseManager.for_connection_state(True)
     def add_column_to(self, table: str, **atributes) -> None:
@@ -101,8 +101,11 @@ class SQLiteManager(DataBaseManager):
 
     @DataBaseManager.for_connection_state(True)
     def delete_columns_from(self, table: str, **atributes) -> None:
-        self._custom_request(f"DELETE FROM {table}" + (f" WHERE {' and '.join([f'{key} = ?' for key in tuple(atributes)])}" if len(atributes) > 0 else ""), tuple(atributes.values()))
+        self._custom_request(f"DELETE FROM {table} {self.__create_sqlite_condition_from(atributes.keys())}", tuple(atributes.values()))
 
     def __convert_to(self, values: tuple, format: tuple):
         template = dict.fromkeys(format)
         return tuple([{format[i]: values[user_index][i] for i in range(len(template))} for user_index in range(len(values))])
+
+    def __create_sqlite_condition_from(self, conditions: list[str]):
+        return f"WHERE {' and '.join([f'{key} = ?' for key in tuple(conditions)])}" if len(conditions) > 0 else ""
