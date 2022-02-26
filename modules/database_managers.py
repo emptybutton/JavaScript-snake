@@ -48,6 +48,8 @@ class DataBaseManager:
 class IColumnChanger:
     def add_column_to(self, table: str, **atributes) -> None: pass
 
+    def change_column_value_to(self, table: str, column_name: str, value: any, **conditions) -> None: pass
+
     def delete_columns_from(self, table: str, **atributes) -> None: pass
 
 
@@ -98,6 +100,12 @@ class SQLiteManager(DataBaseManager):
     @DataBaseManager.for_connection_state(True)
     def add_column_to(self, table: str, **atributes) -> None:
         self._custom_request(f"""INSERT INTO {table}({', '.join(list(atributes.keys()))}) VALUES({', '.join(['?']*len(atributes.values()))})""", tuple(atributes.values()))
+
+    @DataBaseManager.for_connection_state(True)
+    def change_column_value_to(self, table: str, column_name: str, value: any, **conditions) -> None:
+        data = [value]
+        data.extend(conditions.values())
+        self._custom_request(f"UPDATE {table} SET {column_name} = ? {self.__create_sqlite_condition_from(conditions.keys())}", data)
 
     @DataBaseManager.for_connection_state(True)
     def delete_columns_from(self, table: str, **atributes) -> None:
