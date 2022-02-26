@@ -1,7 +1,8 @@
-from os import path
+import os
 
 from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from random import choice
 
 from modules.database_managers import *
 
@@ -78,7 +79,10 @@ def registration():
             result_message = "To register, you must agree to our policy"
         else:
             result_message = f"User \"{request.form['name']}\" is registered!"
-            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]))
+            with open(choice(list(map(lambda name: os.path.join("static\images\default-avatars", name), filter(lambda dirname: len(dirname.split(".")) > 1, os.listdir("static\images\default-avatars"))))), "br") as file:
+                binary_icon = file.read()
+
+            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]), icon=binary_icon)
 
         flash(result_message, category="registration_result")
 
@@ -110,7 +114,7 @@ def not_found_handler(error):
 
 
 if __name__ == "__main__":
-    if not path.isfile(app.config['DATABASE']):
+    if not os.path.isfile(app.config['DATABASE']):
         initialise_database()
 
     app.run(port="1280")

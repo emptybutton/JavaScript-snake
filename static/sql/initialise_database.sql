@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users(
   url TEXT NOT NULL,
   email TEXT NOT NULL,
   password TEXT NOT NULL,
+  icon BLOB NOT NULL,
   name TEXT,
-  self_description TEXT,
-  icon BLOB
+  self_description TEXT
 );
