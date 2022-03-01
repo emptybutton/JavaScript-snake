@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, url_for, flash, get_flashed_messages, make_response, redirect, g, session
+from flask import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from random import choice
 
@@ -96,9 +96,18 @@ def password_recovery():
     return render_template("password-recovery.html")
 
 
-@app.route("/users/<string:user_login>")
-def profile(user_login):
-    return render_template("profile.html", user_login=user_login)
+@app.route("/users/<string:user_url>")
+def profile(user_url):
+    g.db_manager = get_db_manager()
+    g.db_manager.connect()
+
+    user = g.db_manager.get_info_from("users", url=user_url)
+    if user:
+        response = make_response(render_template("profile.html", **user[0]))
+        response.headers["fuck me"] = 100
+        return response
+    else:
+        abort(404)
 
 
 @app.teardown_appcontext
