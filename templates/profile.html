@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
 {% block body %}
-  <h3>Hello {{user_name}} !</h3>
+  <h3>Hello {% if name %}{{name}} {% else %}{{url}} {% endif %} !</h3> <!--For a test-->
+  <script src={{url_for("static", filename="js/profile.js")}}></script>
 {% endblock %}
