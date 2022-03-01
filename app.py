@@ -110,6 +110,18 @@ def profile(user_url):
         abort(404)
 
 
+@app.route("/api/usersdata/<string:user_url>")
+def user_api(user_url):
+    g.db_manager = get_db_manager()
+    g.db_manager.connect()
+
+    user_data = g.db_manager.get_info_from("users", url=user_url)[0]
+    for unnecessary_data_keys_for_client in ("id", "password", "email", "icon"):
+        user_data.pop(unnecessary_user_data_for_client)
+
+    return jsonify(user_data)
+
+
 @app.teardown_appcontext
 def close_db(error):
     if hasattr(g, "db_manager"):
