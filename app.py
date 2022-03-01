@@ -23,7 +23,7 @@ def initialise_database():
 
 
 @app.route("/")
-def index():
+def main_page():
     return render_template("index.html")
 
 
@@ -117,13 +117,13 @@ def user_api(user_url):
 
     user_data = g.db_manager.get_info_from("users", url=user_url)[0]
     for unnecessary_data_keys_for_client in ("id", "password", "email", "icon"):
-        user_data.pop(unnecessary_user_data_for_client)
+        user_data.pop(unnecessary_data_keys_for_client)
 
     return jsonify(user_data)
 
 
 @app.teardown_appcontext
-def close_db(error):
+def context_closure(error):
     if hasattr(g, "db_manager"):
         if g.db_manager.is_connected:
             g.db_manager.disconnect()
