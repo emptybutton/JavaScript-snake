@@ -120,6 +120,20 @@ def user_api(user_url):
         user_data.pop(unnecessary_data_keys_for_client)
 
     return jsonify(user_data)
+@app.route("/api/user.avatar/<string:user_url>")
+def api_for_user_icon(user_url):
+    g.db_manager = get_db_manager()
+    g.db_manager.connect()
+
+    user_data = g.db_manager.get_info_from("users", url=user_url)
+    if user_data and user_data[0]["icon"]:
+        response = make_response(user_data[0]["icon"])
+        response.headers["Content-Type"] = "image/jpeg"
+
+        return response
+
+    else:
+        return send_file("static/images/default-user-icon.jpeg")
 
 
 @app.teardown_appcontext
