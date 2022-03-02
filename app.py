@@ -16,6 +16,8 @@ def get_db_manager() -> DataBaseManager:
 
 
 def initialise_database():
+    os.makedirs(os.path.dirname(app.config["DATABASE"]))
+
     with open(app.config["DATABASE"], "w"):
         with get_db_manager() as manager:
             with open("static/sql/initialise_database.sql") as sql_file:
@@ -105,16 +107,22 @@ def profile(user_url):
         abort(404)
 
 
-@app.route("/api/usersdata/<string:user_url>")
-def user_api(user_url):
+@app.route("/api/user.data/<string:user_url>")
+def api_for_userdata(user_url):
     g.db_manager = get_db_manager()
     g.db_manager.connect()
 
-    user_data = g.db_manager.get_info_from("users", url=user_url)[0]
-    for unnecessary_data_keys_for_client in ("id", "password", "email", "icon"):
-        user_data.pop(unnecessary_data_keys_for_client)
+    data_for_client = dict()
 
-    return jsonify(user_data)
+    user_data = g.db_manager.get_info_from("users", url=user_url)
+    if user_data:
+        data_for_client = user_data[0]
+        for unnecessary_data_keys_for_client in ("id", "password", "email", "icon"):
+            data_for_client.pop(unnecessary_data_keys_for_client)
+
+    return jsonify(data_for_client)
+
+
 @app.route("/api/user.avatar/<string:user_url>")
 def api_for_user_icon(user_url):
     g.db_manager = get_db_manager()
