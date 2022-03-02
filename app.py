@@ -79,16 +79,11 @@ def registration():
             result_message = "To register, you must agree to our policy"
         else:
             result_message = f"User \"{request.form['name']}\" is registered!"
-            with open(choice(list(map(lambda name: os.path.join("static\images\default-avatars", name), filter(lambda dirname: len(dirname.split(".")) > 1, os.listdir("static\images\default-avatars"))))), "br") as file:
-                binary_icon = file.read()
-
-            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]), icon=binary_icon)
+            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]))
 
         flash(result_message, category="registration_result")
 
-    response = make_response(render_template("registration.html"))
-
-    return response
+    return render_template("registration.html")
 
 
 @app.route("/password-recovery")
