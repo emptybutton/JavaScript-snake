@@ -103,16 +103,24 @@ def password_recovery():
     return render_template("password-recovery.html")
 
 
+@app.route("/change.profile")
+def change_profile():
+    abort(404)
+
+
 @app.route("/users/<string:user_url>")
 def profile(user_url):
     g.db_manager = get_db_manager()
     g.db_manager.connect()
 
-    user = g.db_manager.get_info_from("users", url=user_url)
-    if user:
-        response = make_response(render_template("profile.html", **user[0]))
-        response.headers["fuck me"] = 100
-        return response
+    found_users = g.db_manager.get_info_from("users", url=user_url)
+    if found_users:
+        if "user_id" in session.keys():
+            is_account_my_own = g.db_manager.get_info_from("users", id=session["user_id"])[0]["id"] == found_users[0]["id"]
+        else:
+            is_account_my_own = False
+
+        return make_response(render_template("profile.html", is_account_my_own=is_account_my_own, **found_users[0]))
     else:
         abort(404)
 
