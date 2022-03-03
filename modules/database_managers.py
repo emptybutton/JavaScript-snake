@@ -61,7 +61,7 @@ class IColumnSupplier:
     def get_columns_from(self, table: str, **atributes) -> tuple[str]: pass
 
 
-class SQLiteManager(DataBaseManager):
+class SQLiteManager(DataBaseManager, IColumnChanger, IColumnSupplier):
     @DataBaseManager.for_connection_state(False)
     def connect(self) -> None:
         super().connect()

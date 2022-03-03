@@ -15,7 +15,7 @@ def get_db_manager() -> DataBaseManager:
     return app.config["PROTOTYPE_OF_DATABASE_MANAGER"](app.config["DATABASE"])
 
 
-def initialise_database():
+def initialise_database() -> None:
     os.makedirs(os.path.dirname(app.config["DATABASE"]))
 
     with open(app.config["DATABASE"], "w"):
@@ -41,7 +41,7 @@ def authorization():
             if check_password_hash(user["password"], request.form["password"]):
                 session["user_id"] = g.db_manager.get_info_from("users", **{discover_login: request.form["login"]})[0]["id"]
 
-                return redirect(url_for("profile", user_login=user["url"])), 301
+                return redirect(url_for("profile", user_url=user["url"])), 301
 
         flash("Check out your data!", category="denied")
 
@@ -117,8 +117,8 @@ def api_for_userdata(user_url):
     user_data = g.db_manager.get_info_from("users", url=user_url)
     if user_data:
         data_for_client = user_data[0]
-        for unnecessary_data_keys_for_client in ("id", "password", "email", "icon"):
-            data_for_client.pop(unnecessary_data_keys_for_client)
+        for unnecessary_data_key_for_client in ("id", "password", "email", "icon"):
+            data_for_client.pop(unnecessary_data_key_for_client)
 
     return jsonify(data_for_client)
 
