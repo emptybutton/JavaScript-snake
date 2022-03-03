@@ -80,8 +80,18 @@ def registration():
         elif not request.form["isAgree"]:
             result_message = "To register, you must agree to our policy"
         else:
-            result_message = f"User \"{request.form['name']}\" is registered!"
-            g.db_manager.add_column_to("users", url=request.form["name"], email=request.form["email"], password=generate_password_hash(request.form["password"]))
+            new_user_data = {
+                "url": request.form["name"],
+                "email": request.form["email"],
+                "password": generate_password_hash(request.form["password"])
+            }
+
+            g.db_manager.add_column_to("users", **new_user_data)
+            new_user = g.db_manager.get_info_from("users", **new_user_data)[0]
+
+            session["user_id"] = new_user["id"]
+
+            return redirect(url_for("profile", user_url=new_user["url"])), 301
 
         flash(result_message, category="registration_result")
 
