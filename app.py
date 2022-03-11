@@ -42,7 +42,7 @@ def get_data_of_registered_user() -> dict:
 
 @app.route("/")
 def main_page():
-    return render_template("index.html")
+    return render_template("index.html", link_to_user=get_data_of_registered_user()["url"] if is_user_registered() else None)
 
 
 @app.route("/authorization", methods=["POST", "GET"])

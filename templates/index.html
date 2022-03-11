@@ -13,11 +13,12 @@
   </div>
 </main>
 <footer>
-  {% if login_happened %}
-    <a id="profile-way" href="/profile">profile</a>
-  {% endif %}
+  {% if link_to_user %}
+    <a id="profile-way" href={{url_for("profile", user_url=link_to_user)}}>profile</a>
+  {% else %}
   <a id="registration-way" href="/registration">registration</a>
   <a id="authorization-way" href="/authorization">authorization</a>
+  {% endif %}
 </footer>
 <script type="module" src="static\js\main-page.js"></script>
 {% endblock %}
