@@ -167,6 +167,11 @@ def api_for_user_icon(user_url):
         return send_file("static/images/default-user-icon.jpeg")
 
 
+@app.route("/api/default-user-avatar")
+def api_for_default_user_icon():
+    return send_file("static/images/default-user-icon.jpeg")
+
+
 @app.teardown_appcontext
 def context_closure(error):
     if hasattr(g, "db_manager"):
