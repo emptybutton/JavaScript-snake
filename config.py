@@ -7,6 +7,7 @@ from modules.data_overseers import MainOverseer
 
 DEBUG = True
 SECRET_KEY = secrets.token_hex()
-DATABASE = path.abspath("databases/main-base.db")
+
+DATABASE_PATH = path.abspath("databases/main-base.db")
 PROTOTYPE_OF_DATABASE_MANAGER = SQLiteManager
 OVERSEER_FOR_DATA = MainOverseer()

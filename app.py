@@ -12,7 +12,7 @@ app.config.from_object("config")
 
 
 def get_db_manager() -> DataBaseManager:
-    return app.config["PROTOTYPE_OF_DATABASE_MANAGER"](app.config["DATABASE"])
+    return app.config["PROTOTYPE_OF_DATABASE_MANAGER"](app.config["DATABASE_PATH"])
 
 
 def initialise_database() -> None:
@@ -136,7 +136,7 @@ def profile(user_url):
         abort(404)
 
 
-@app.route("/api/user.data/<string:user_url>")
+@app.route("/api/user-data/<string:user_url>")
 def api_for_userdata(user_url):
     g.db_manager = get_db_manager()
     g.db_manager.connect()
@@ -152,7 +152,7 @@ def api_for_userdata(user_url):
     return jsonify(data_for_client)
 
 
-@app.route("/api/user.avatar/<string:user_url>")
+@app.route("/api/user-avatar/<string:user_url>")
 def api_for_user_icon(user_url):
     g.db_manager = get_db_manager()
     g.db_manager.connect()
@@ -163,7 +163,6 @@ def api_for_user_icon(user_url):
         response.headers["Content-Type"] = "image/jpeg"
 
         return response
-
     else:
         return send_file("static/images/default-user-icon.jpeg")
 
@@ -181,7 +180,7 @@ def not_found_handler(error):
 
 
 if __name__ == "__main__":
-    if not os.path.isfile(app.config['DATABASE']):
+    if not os.path.isfile(app.config['DATABASE_PATH']):
         initialise_database()
 
     app.run(port="1280")
