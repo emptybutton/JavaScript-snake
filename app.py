@@ -24,6 +24,22 @@ def initialise_database() -> None:
                 manager._execute_script(sql_file.read())
 
 
+def is_user_registered() -> bool:
+    if "user_id" in session.keys():
+        with get_db_manager() as manager:
+            return any(filter(
+                lambda user: user["id"] == session["user_id"],
+                manager.get_info_from("users", id=session["user_id"])
+            ))
+
+    return False
+
+
+def get_data_of_registered_user() -> dict:
+    with get_db_manager() as manager:
+        return manager.get_info_from("users", id=session["user_id"])[0]
+
+
 @app.route("/")
 def main_page():
     return render_template("index.html")
@@ -50,7 +66,7 @@ def authorization():
 
 @app.route("/sign-out")
 def logout():
-    if "user_id" in session.keys():
+    if is_user_registered():
         del session["user_id"]
 
     return redirect(url_for("index")), 301
@@ -115,12 +131,7 @@ def profile(user_url):
 
     found_users = g.db_manager.get_info_from("users", url=user_url)
     if found_users:
-        if "user_id" in session.keys():
-            is_account_my_own = g.db_manager.get_info_from("users", id=session["user_id"])[0]["id"] == found_users[0]["id"]
-        else:
-            is_account_my_own = False
-
-        return make_response(render_template("profile.html", is_account_my_own=is_account_my_own, **found_users[0]))
+        return make_response(render_template("profile.html", is_account_my_own=g.db_manager.get_info_from("users", id=session["user_id"])[0]["id"] == found_users[0]["id"] if is_user_registered() else False, **found_users[0]))
     else:
         abort(404)
 
