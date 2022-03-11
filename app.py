@@ -1,4 +1,5 @@
 import os
+from base64 import b64encode, b64decode
 
 from flask import *
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -119,9 +120,28 @@ def password_recovery():
     return render_template("password-recovery.html")
 
 
-@app.route("/change.profile")
+@app.route("/change-profile", methods=["GET", "POST"])
 def change_profile():
-    abort(404)
+    if is_user_registered():
+        g.db_manager = get_db_manager()
+        g.db_manager.connect()
+
+        if request.method == "POST":
+            new_user_data = {
+                "name": request.form["name"],
+                "self_description": request.form["self_description"],
+                "icon": b64decode(request.form["icon"].encode()) if request.form["icon"] else None
+            }
+
+            for column_name, value in new_user_data.items():
+                g.db_manager.change_column_value_to("users", column_name, value, id=session["user_id"])
+
+
+            return redirect(url_for("profile", user_url=get_data_of_registered_user()["url"]))
+        else:
+            return render_template("change-profile.html", **g.db_manager.get_info_from("users", id=session["user_id"])[0])
+    else:
+        abort(404)
 
 
 @app.route("/users/<string:user_url>")

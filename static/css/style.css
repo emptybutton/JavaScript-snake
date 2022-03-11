@@ -98,6 +98,12 @@ button:active {
   color: #282828;
 }
 
+.user-description {
+  width: 200px;
+  height: 100px;
+  resize: none;
+}
+
 #error-code {
   font-size: 122px;
 }
@@ -112,7 +118,7 @@ button:active {
 
 #registration-error {padding-left: 10px}
 
-#user-icon {
+.users-icon {
   width: 300px;
   height: 300px;
   border-radius: 50%;
@@ -122,6 +128,42 @@ button:active {
 #self-description {
   width: 240px;
   display: inline-block;
+}
+
+#mutable-information {
+  text-align: left;
+  position: relative;
+  bottom: 20px;
+}
+
+.garbage-of-form {
+  margin-bottom: 7px
+}
+
+.garbage-of-form:last-child {
+  margin-bottom: 4px;
+}
+
+.internal-loader {
+  display: none;
+}
+
+
+#add-image-button, #remove-image-button {
+  position: relative;
+  bottom: 40px;
+}
+
+#add-image-button {
+  right: 53px;
+}
+
+#remove-image-button {
+  left: 53px;
+}
+
+#wraper-for-submit-button {
+  text-align: center;
 }
 
 .js-text {

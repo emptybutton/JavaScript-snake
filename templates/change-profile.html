@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Change your profile{% endblock %}
+
+{% block body %}
+  <form method="post" id="form-for-new-account-data" enctype="multipart/form-data">
+    <div class="garbage-of-form">
+      <img class="users-icon" name="userIcon" src="{{url_for("api_for_user_icon", user_url=url)}}">
+    </div>
+    <div class="garbage-of-form">
+      <input class="internal-loader" id="icon-loader" type="file" accept="image/*">
+      <button type="button" class="white-form" id="add-image-button">Up load</button>
+      <button type="button" class="white-form" id="remove-image-button">Remove</button>
+    </div>
+    <div class="structured-text" id="mutable-information">
+      <div class="garbage-of-form">
+        <input type="text" name="name" placeholder="Public name of your account" maxlength="256" value="{% if name %}{{name}}{% endif %}">
+      </div>
+      <div class="garbage-of-form">
+        <textarea class="user-description" name="self_description" placeholder="Your description">{% if self_description %}{{self_description}}{% endif %}</textarea>
+      </div>
+      <div id="wraper-for-submit-button">
+        <button type="submit" id="save-button">Save</button>
+      </div>
+    </div>
+  </form>
+  <script src="{{url_for("static", filename="js/change-profile.js")}}"></script>
+{% endblock %}
