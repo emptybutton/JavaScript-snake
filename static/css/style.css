@@ -23,16 +23,16 @@ a:hover {
   color: #fcd84e;
 }
 
-input, button {
+input, button, textarea {
   border-radius: 3px;
 }
 
-input {
+input, textarea {
   background-color: #fafafa;
   border: 0;
 }
 
-input:focus {
+input:focus, textarea:focus {
   background-color: #8f7cf7;
   outline: none;
 }
@@ -53,16 +53,18 @@ div {
 
 .integrated {display: inline}
 
-.structured-text {
+.white-form, .structured-text {
   background-color: #e1e1fa;
   border: solid 2px #b4b4d2;
   border-radius: 5px;
+}
+
+.structured-text {
   margin-top: 3px;
   display: inline-block;
 }
 
 .structured-text * {
-  margin-bottom: 3px;
   margin: 4px 6px 4px 6px;
   color: #262626;
 }
@@ -79,8 +81,7 @@ button {
 
 button:active {
   background-color: #fcd84e;
-  color: #fffdd9;
-  border: solid 1px #fcd84e;
+  border-color: #fcd84e;
 }
 
 .form-footer {padding-top: 6px}

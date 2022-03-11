@@ -5,7 +5,7 @@
 {% block body %}
   <div id="about-user">
     <div>
-      <a href={% if is_account_my_own %}{{url_for("change_profile")}} {% else %}{{url_for("api_for_user_icon", user_url=url)}} {% endif %}><img id="user-icon" src={{url_for("api_for_user_icon", user_url=url)}}></a>
+      <a href={% if is_account_my_own %}{{url_for("change_profile")}} {% else %}{{url_for("api_for_user_icon", user_url=url)}} {% endif %}><img class="users-icon" src={{url_for("api_for_user_icon", user_url=url)}}></a>
     </div>
     <div id="nameing">
       <h3>{% if name %}{{name}} {% else %}{{url}} {% endif %}</h3>
@@ -16,7 +16,6 @@
       </div>
     {% endif %}
   </div>
-
 
   <script src={{url_for("static", filename="js/profile.js")}}></script>
 {% endblock %}
