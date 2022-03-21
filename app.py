@@ -122,26 +122,31 @@ def password_recovery():
 
 @app.route("/change-profile", methods=["GET", "POST"])
 def change_profile():
-    if is_user_registered():
-        g.db_manager = get_db_manager()
-        g.db_manager.connect()
-
-        if request.method == "POST":
-            new_user_data = {
-                "name": request.form["name"],
-                "self_description": request.form["self_description"],
-                "icon": b64decode(request.form["icon"].encode()) if request.form["icon"] else None
-            }
-
-            for column_name, value in new_user_data.items():
-                g.db_manager.change_column_value_to("users", column_name, value, id=session["user_id"])
-
-
-            return redirect(url_for("profile", user_url=get_data_of_registered_user()["url"]))
-        else:
-            return render_template("change-profile.html", **g.db_manager.get_info_from("users", id=session["user_id"])[0])
-    else:
+    if not is_user_registered():
         abort(404)
+
+    g.db_manager = get_db_manager()
+    g.db_manager.connect()
+
+    if request.method == "POST":
+        new_user_data = {
+            "name": request.form["name"],
+            "self_description": request.form["self_description"],
+            "icon": b64decode(request.form["icon"].encode()) if request.form["icon"] else None
+        }
+
+        for column_name, value in new_user_data.items():
+            g.db_manager.change_column_value_to("users", column_name, value, id=session["user_id"])
+
+        return redirect(url_for("profile", user_url=get_data_of_registered_user()["url"]))
+
+    elif request.method == "GET":
+        registered_user = get_data_of_registered_user()
+
+        response = make_response(render_template("change-profile.html", **registered_user))#**g.db_manager.get_info_from("users", id=session["user_id"])[0]))
+        response.set_cookie("is_icon_standart", "1" if registered_user["icon"] is None else "0", max_age=3*60)
+
+        return response
 
 
 @app.route("/users/<string:user_url>")
