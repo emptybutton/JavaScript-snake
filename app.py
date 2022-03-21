@@ -171,8 +171,10 @@ def api_for_userdata(user_url):
     user_data = g.db_manager.get_info_from("users", url=user_url)
     if user_data:
         data_for_client = user_data[0]
-        for unnecessary_data_key_for_client in ("id", "password", "email", "icon"):
+        for unnecessary_data_key_for_client in ("id", "password", "email"):
             data_for_client.pop(unnecessary_data_key_for_client)
+
+        data_for_client["is_icon_standart"] = True if data_for_client.pop("icon") is None else False
 
     return jsonify(data_for_client)
 
@@ -189,7 +191,7 @@ def api_for_user_icon(user_url):
 
         return response
     else:
-        return send_file("static/images/default-user-icon.jpeg")
+        return redirect(url_for("api_for_default_user_icon"))
 
 
 @app.route("/api/default-user-avatar")
