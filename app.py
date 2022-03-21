@@ -17,9 +17,9 @@ def get_db_manager() -> DataBaseManager:
 
 
 def initialise_database() -> None:
-    os.makedirs(os.path.dirname(app.config["DATABASE"]))
+    os.makedirs(os.path.dirname(app.config["DATABASE_PATH"]))
 
-    with open(app.config["DATABASE"], "w"):
+    with open(app.config["DATABASE_PATH"], "w"):
         with get_db_manager() as manager:
             with open("static/sql/initialise_database.sql") as sql_file:
                 manager._execute_script(sql_file.read())
