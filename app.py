@@ -62,7 +62,8 @@ def authorization():
 
         flash("Check out your data!", category="denied")
 
-    return render_template("authorization.html")
+    elif request.method == "GET":
+        return render_template("authorization.html")
 
 
 @app.route("/sign-out")
@@ -112,7 +113,8 @@ def registration():
 
         flash(result_message, category="registration_result")
 
-    return render_template("registration.html")
+    elif request.method == "GET":
+        return render_template("registration.html")
 
 
 @app.route("/password-recovery")
