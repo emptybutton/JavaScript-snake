@@ -27,7 +27,7 @@ input, button, textarea {
   border-radius: 3px;
 }
 
-input, textarea {
+input, .structured-text textarea {
   background-color: #fafafa;
   border: 0;
 }
@@ -53,13 +53,13 @@ div {
 
 .integrated {display: inline}
 
-.white-form, .structured-text {
+.white-form, .structured-text, textarea {
   background-color: #e1e1fa;
   border: solid 2px #b4b4d2;
   border-radius: 5px;
 }
 
-.structured-text {
+.structured-text, textarea {
   margin-top: 3px;
   display: inline-block;
 }
