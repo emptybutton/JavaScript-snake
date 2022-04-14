@@ -71,7 +71,7 @@ def sign_out():
     if is_user_registered():
         del session["user_id"]
 
-    return redirect(url_for("index")), 301
+    return redirect(url_for("main_page")), 302
 
 
 @app.route("/registration", methods=["POST", "GET"])
