@@ -174,4 +174,21 @@ button:active {
   display: inline-block;
 }
 
+#naming {
+  bottom: 60px;
+  position: relative;
+}
+
+.hint {
+  opacity: 0px;
+  display: inline-block;
+  position: relative;
+  left: 105px;
+  bottom: 50px;
+  background-color: #252328;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 13.5px;
+}
+
 .js-text, .error {font-weight: bold}

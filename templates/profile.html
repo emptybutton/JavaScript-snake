@@ -3,19 +3,19 @@
 {% block title %}{{url}}{% if name %} ({{name}}){% endif %}{% endblock %}
 
 {% block body %}
-  <div id="about-user">
-    <div>
-      <a href={% if is_account_my_own %}{{url_for("change_profile")}} {% else %}{{url_for("api_for_user_icon", user_url=url)}} {% endif %}><img class="users-icon" src={{url_for("api_for_user_icon", user_url=url)}}></a>
-    </div>
-    <div id="nameing">
-      <h3>{% if name %}{{name}} {% else %}{{url}} {% endif %}</h3>
-    </div>
-    {% if self_description %}
-      <div id="self-description">
-        <span>{{self_description}}</span>
+  <main>
+    <div id="icon-block">
+      <div>
+        <a id={% if is_account_my_own %}to-change-profile-page{% else %}to-icon {% endif %} href={% if is_account_my_own %}{{url_for("change_profile")}} {% else %}{{url_for("api_for_user_icon", user_url=url)}} {% endif %}><img class="user-icon" src={{url_for("api_for_user_icon", user_url=url)}}></a>
       </div>
-    {% endif %}
-  </div>
-
-  <script src={{url_for("static", filename="js/profile.js")}}></script>
+      <div id="change-profile-hint" class="hint">Change profile</div>
+    </div>
+    <div id="naming">
+      <h3 class="username">{% if name %}{{name}} {% else %}{{url}} {% endif %}</h3>
+      {% if self_description %}
+      <textarea class="user-description" disabled>{{self_description}}</textarea>
+      {% endif %}
+    </div>
+  </main>
+  <script type="module" src={{url_for("static", filename="js/profile.js")}}></script>
 {% endblock %}
