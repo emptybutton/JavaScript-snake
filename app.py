@@ -66,8 +66,8 @@ def authorization():
         return render_template("authorization.html")
 
 
-@app.route("/sign-out")
-def logout():
+@app.route("/logout")
+def sign_out():
     if is_user_registered():
         del session["user_id"]
 

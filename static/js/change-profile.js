@@ -1,6 +1,6 @@
 const form = document.getElementById("form-for-new-account-data");
 
-const bufferForNewIcon = document.getElementsByClassName("users-icon")[0];
+const bufferForNewIcon = document.getElementsByClassName("user-icon")[0];
 const standartIconSize = [500, 500];
 
 let isIconDefault = Boolean(Number(getCookie("is_icon_standart")));
