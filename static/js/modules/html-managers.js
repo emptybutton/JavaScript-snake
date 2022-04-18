@@ -179,6 +179,72 @@ export class Hint extends Follower {
   }
 }
 
+
+class CustomAlert extends Hider {
+  resetBodyState() {
+    getChildElementByAtribute(this.body, "name", "hide-button").onclick = () => {
+      this.startHiding();
+    }
+  }
+
+  isShown() {
+    return document.getElementById(this.body.id) != undefined;
+  }
+
+  showUp() {
+    if (!this.isShown())
+      document.body.insertBefore(this.body, document.body.firstChild);
+  }
+
+  hide() {
+    if (this.isShown())
+      document.body.removeChild(this.body);
+  }
+}
+
+
+export function alert(message, windowId="alert", windowClassName="standart-alert", textAreaClassName="black-form", buttonClassName="black-button") {
+  const oldCustomAlert = CustomAlert.visibilityZone.find((element, index, array) => element.body.id == windowId);
+
+  if (!oldCustomAlert) {
+    const bodyForAlert = createAlertBody(message, windowId, windowClassName, textAreaClassName, buttonClassName);
+    document.body.insertBefore(bodyForAlert, document.body.firstChild);
+
+    new CustomAlert(bodyForAlert);
+  }
+  else {
+    getChildElementByAtribute(oldCustomAlert.body, "localName", "textarea").innerHTML = message;
+    oldCustomAlert.startShowing();
+  }
+}
+
+
+function createAlertBody(message, windowId, windowClassName, textAreaClassName, buttonClassName) {
+  const window = document.createElement("div");
+  window.className = windowClassName;
+  window.id = "alert-window";
+
+  const textArea = document.createElement("textarea");
+  textArea.className = textAreaClassName;
+  textArea.disabled = true;
+  textArea.innerHTML = message;
+
+  const wraperForTextArea = document.createElement("div");
+  wraperForTextArea.id = "wraper-for-text-area";
+  wraperForTextArea.appendChild(textArea);
+
+  const button = document.createElement("button");
+  button.innerHTML = "OK";
+  button.name = "hide-button";
+  button.className = buttonClassName;
+
+  window.appendChild(wraperForTextArea);
+  window.appendChild(button);
+
+  return window;
+}
+
+
 export function getChildElementByAtribute(element, classOfsearthAtribute, searthAtribute) {
   let elementsForSearching = Array.from(element.children);
   let newElements = [];
