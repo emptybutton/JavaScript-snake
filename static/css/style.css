@@ -180,7 +180,7 @@ button:active {
 }
 
 .hint {
-  opacity: 0px;
+  opacity: 0;
   display: inline-block;
   position: relative;
   left: 105px;

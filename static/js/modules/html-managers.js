@@ -1,100 +1,168 @@
-export class Hint {
+import {TimeLoop} from "./time-managers.js";
+import {createMethodAsFunction} from "./functions.js";
+
+
+class HtmlManager {
+  static visibilityZone = [];
   #body;
-  #target;
-  #comingEvent;
 
-  constructor(body, target, calculatePosition=(thisNewObject) => {}, transparencyLimit=0.90, transparencyFactor=3, comingStartDelay=400) {
-    this.calculatePositionFunction = calculatePosition;
+  constructor(body) {
+    this.constructor.visibilityZone.push(this);
 
-    this.body = body;
-    this.target = target;
-
-    this.transparencyFactor = transparencyFactor;
-    this.transparencyLimit = transparencyLimit;
-
-    this.comingStartDelay = comingStartDelay;
+    this.#body = body;
+    this.resetBodyState();
   }
 
-  get isComing() {
-    return new Boolean(this.#comingEvent);
-  }
+  resetBodyState() {}
 
   get body() {
     return this.#body;
   }
+}
 
-  set body(newBody) {
-    if (this.#body) {
-      this.showUp();
-    }
 
-    this.#body = newBody;
-    this.breakComing();
+class Hider extends HtmlManager {
+  static timeDifferenceOfShowingStages = 0;
+  static timeDifferenceOfHidingStages = 0;
+
+  constructor(body) {
+    super(body);
+    this.timeEvent;
+
+    this.initializeTimeEvents();
+  }
+
+  initializeTimeEvents() {
+    this.stopСhanging();
+    this.timeEvent = new TimeLoop();
+  }
+
+  isChanging() {
+    if (this.timeEvent)
+      return this.timeEvent.isActive();
+    else
+      return false;
+  }
+
+  isShown() {}
+
+  showUp() {}
+
+  hide() {}
+
+  startShowing() {
+    this.stopСhanging();
+
+    this.timeEvent.action = createMethodAsFunction(this, this.activateStageOfShowing);
+    this.timeEvent.tact = this.constructor.timeDifferenceOfShowingStages;
+
+    this.timeEvent.start();
+  }
+
+  startHiding() {
+    this.stopСhanging();
+
+    this.timeEvent.action = createMethodAsFunction(this, this.activateStageOfHiding);
+    this.timeEvent.tact = this.constructor.timeDifferenceOfHidingStages;
+
+    this.timeEvent.start();
+  }
+
+  activateStageOfShowing() {
+    this.stopСhanging();
+    this.showUp();
+  }
+
+  activateStageOfHiding() {
+    this.stopСhanging();
     this.hide();
+  }
 
-    if (this.target) {
-      this.calculatePositionFunction(this);
+  stopСhanging() {
+    if (this.isChanging()) {
+      this.timeEvent.stop();
+    }
+  }
+}
+
+
+class Follower extends Hider {
+  #master;
+
+  constructor(body, master) {
+    super(body);
+    this.#master = master;
+    this.resetFollowerState();
+  }
+
+  resetFollowerState() {}
+
+  get master() {
+    return this.#master;
+  }
+}
+
+
+export class Hint extends Follower {
+  static timeDifferenceOfShowingStages = 25;
+
+  constructor(body, master, transparencyLimit=1, transparencyFactor=1) {
+    super(body, master);
+
+    this.transparencyFactor = transparencyFactor;
+    this.transparencyLimit = transparencyLimit;
+  }
+
+  resetBodyState() {
+    this.stopСhanging();
+    this.hide();
+  }
+
+  resetFollowerState(futureMaster) {
+    this.master.onmouseover = () => {
+      this.startShowing();
+    }
+
+    this.master.onmouseout = () => {
+      this.startHiding();
     }
   }
 
-  get target() {
-    return this.#target;
+  isShown() {
+    return this.transparencyLimit == parseFloat(this.body.style.opacity);
   }
 
-  set target(newTarget) {
-    if (this.#target) {
-      this.breakComing();
-      this.hide();
-
-      this.#target.onmouseover = () => {}
-      this.#target.onmouseout = () => {}
-    }
-
-    this.#target = newTarget;
-
-    this.#target.onmouseover = () => {
-      this.startComing();
-    }
-
-    this.#target.onmouseout = () => {
-      this.breakComing();
-      this.hide();
-    }
-
-    if (this.body) {
-      this.calculatePositionFunction(this);
-    }
-  }
-
-  startComing() {
-    this.#comingEvent = setTimeout(
-      () => {this.#comingEvent = setInterval(() => {this.activateStageOfComing()})},
-      this.comingStartDelay
-    )
-  }
-
-  activateStageOfComing() {
+  activateStageOfShowing() {
     let opacity = parseFloat(this.body.style.opacity);
-    const unit = 0.01 * this.transparencyFactor;
 
     if (opacity)
-      opacity += unit;
+      opacity += this.currentTransparencyProgression;
     else
-      opacity = unit;
+      opacity = this.currentTransparencyProgression;
 
     if (opacity > this.transparencyLimit) {
+      this.stopСhanging();
       this.showUp();
-      this.breakComing();
     }
     else {
       this.body.style.opacity = opacity;
     }
   }
 
-  breakComing() {
-    if (this.isComing) {
-      clearInterval(this.#comingEvent);
-      this.#comingEvent = undefined;
+  activateStageOfHiding() {
+    let opacity = parseFloat(this.body.style.opacity);
+
+    if (opacity)
+      opacity -= this.currentTransparencyProgression;
+    else
+      opacity = this.currentTransparencyProgression;
+
+    if (opacity <= 0) {
+      this.stopСhanging();
+      this.hide();
+    }
+    else {
+      this.body.style.opacity = opacity;
     }
   }
 
@@ -105,4 +173,10 @@ export class Hint {
   hide() {
     this.body.style.opacity = 0;
   }
+
+  get currentTransparencyProgression() {
+    return 0.1 * this.transparencyFactor;
+  }
+}
+
 }
