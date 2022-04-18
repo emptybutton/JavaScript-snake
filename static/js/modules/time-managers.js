@@ -4,7 +4,7 @@ export class TimeLoop {
   #stops = 0;
   #stopThrough;
 
-  constructor(tact, action, stopThrough=-1, actionWhenStopping=() => {}) {
+  constructor(tact, action=() => {}, stopThrough=-1, actionWhenStopping=() => {}) {
     this.tact = tact;
     this.action = action;
     this.actionWhenStopping = actionWhenStopping;
@@ -17,7 +17,7 @@ export class TimeLoop {
 
   start() {
     let that = this;
-    this.#interval = setInterval(() => {that.#oscillation()}, this.tact);
+    this.#interval = setInterval(() => {that.oscillation()}, this.tact);
   }
 
   stop() {
@@ -27,6 +27,21 @@ export class TimeLoop {
     this.actionWhenStopping();
 
     clearInterval(this.#interval);
+    this.#interval = undefined;
+  }
+
+  oscillation() {
+    this.#stopThrough.real--;
+    this.#oscillationMade++;
+
+    this.action();
+
+    if (this.#stopThrough.real == 0)
+      this.stop();
+  }
+
+  isActive() {
+    return this.#interval != undefined;
   }
 
   get oscillationMade() {
@@ -39,16 +54,7 @@ export class TimeLoop {
 
   set stopThrough(value) {
     this.#stopThrough.max = value;
-  }
-
-  #oscillation() {
-    this.#stopThrough.real--;
-    this.#oscillationMade++;
-
-    this.action();
-
-    if (this.#stopThrough.real == 0)
-      this.stop();
+    this.#stopThrough.real = value;
   }
 }
 
