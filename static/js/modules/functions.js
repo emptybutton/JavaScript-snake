@@ -56,3 +56,7 @@ export function inPresence(object, array) {
 
   return false;
 }
+
+export function createMethodAsFunction(object, method, argumentsOfMethod=[]) {
+  return () => {method.apply(object, argumentsOfMethod)};
+}
