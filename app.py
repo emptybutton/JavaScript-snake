@@ -134,7 +134,7 @@ def change_profile():
         new_user_data = {
             "name": request.form["name"],
             "self_description": request.form["self_description"],
-            "icon": b64decode(request.form["icon"].encode()) if request.form["icon"] else None
+            "icon": b64decode(request.form["icon"].encode()) if "icon" in request.form.keys() else None
         }
 
         for column_name, value in new_user_data.items():
