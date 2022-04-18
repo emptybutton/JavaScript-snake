@@ -179,4 +179,19 @@ export class Hint extends Follower {
   }
 }
 
+export function getChildElementByAtribute(element, classOfsearthAtribute, searthAtribute) {
+  let elementsForSearching = Array.from(element.children);
+  let newElements = [];
+
+  while (true) {
+    elementsForSearching = elementsForSearching.concat(...newElements);
+
+    for (let i = 0; i < elementsForSearching.length; i++) {
+      if (elementsForSearching[i][classOfsearthAtribute] == searthAtribute)
+        return elementsForSearching[i];
+
+      else
+        newElements = newElements.concat(...elementsForSearching[i].children);
+    }
+  }
 }
