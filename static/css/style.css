@@ -87,8 +87,14 @@ button {
 }
 
 button:active {
-  background-color: #fcd84e;
-  border-color: #fcd84e;
+  background-color: #fcdc60;
+  border-color: #fcdc60;
+}
+
+button.white-form:active {
+  border-color: #f7d552;
+}
+
 .black-button {
   background-color: #7672f7;
   border-width: 0px;
