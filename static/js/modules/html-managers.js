@@ -250,6 +250,12 @@ export class CustomAlert extends DOMHider {
     return window;
   }
 }
+
+
+export class BlackAlert extends CustomAlert {
+  static createDefaultBody() {
+    return this.createBodyFromTemplate("standart-alert", "black-form", "black-button");
+  }
 }
 
 
