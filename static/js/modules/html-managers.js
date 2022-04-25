@@ -3,11 +3,11 @@ import {createMethodAsFunction} from "./functions.js";
 
 
 class HtmlManager {
-  static visibilityZone = [];
   #body;
 
   constructor(body) {
-    this.constructor.visibilityZone.push(this);
+    if (!body)
+      body = this.constructor.createDefaultBody();
 
     this.#body = body;
     this.resetBodyState();
@@ -18,6 +18,8 @@ class HtmlManager {
   get body() {
     return this.#body;
   }
+
+  static createDefaultBody() {}
 }
 
 
