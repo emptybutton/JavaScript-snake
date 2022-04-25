@@ -1,5 +1,5 @@
 import {TimeLoop} from "./time-managers.js";
-import {createMethodAsFunction} from "./functions.js";
+import {createMethodAsFunction, getRandomInt} from "./functions.js";
 
 
 class HtmlManager {
@@ -182,13 +182,7 @@ export class Hint extends Follower {
 }
 
 
-class CustomAlert extends Hider {
-  resetBodyState() {
-    getChildElementByAtribute(this.body, "name", "hide-button").onclick = () => {
-      this.startHiding();
-    }
-  }
-
+class DOMHider extends Hider {
   isShown() {
     return document.getElementById(this.body.id) != undefined;
   }
@@ -205,45 +199,57 @@ class CustomAlert extends Hider {
 }
 
 
-export function alert(message, windowId="alert", windowClassName="standart-alert", textAreaClassName="black-form", buttonClassName="black-button") {
-  const oldCustomAlert = CustomAlert.visibilityZone.find((element, index, array) => element.body.id == windowId);
-
-  if (!oldCustomAlert) {
-    const bodyForAlert = createAlertBody(message, windowId, windowClassName, textAreaClassName, buttonClassName);
-    document.body.insertBefore(bodyForAlert, document.body.firstChild);
-
-    new CustomAlert(bodyForAlert);
+export class CustomAlert extends DOMHider {
+  constructor(message, body) {
+    super(body);
+    this.message = message;
   }
-  else {
-    getChildElementByAtribute(oldCustomAlert.body, "localName", "textarea").innerHTML = message;
-    oldCustomAlert.startShowing();
+
+  get message() {
+    return getChildElementByAtribute(this.body, "localName", "textarea").innerHTML;
+  }
+
+  set message(someMessage) {
+    if (!someMessage)
+      someMessage = "";
+
+    getChildElementByAtribute(this.body, "localName", "textarea").innerHTML = someMessage;
+  }
+
+  resetBodyState() {
+    getChildElementByAtribute(this.body, "name", "hide-button").onclick = () => {
+      this.startHiding();
+    }
+  }
+
+  static createBodyFromTemplate(windowClassName, textAreaClassName, buttonClassName, windowId) {
+    const window = document.createElement("div");
+    window.className = windowClassName;
+
+    if (windowId)
+      window.id = windowId;
+    else
+      window.id = getRandomInt(0, 1e9);
+
+    const textArea = document.createElement("textarea");
+    textArea.className = textAreaClassName;
+    textArea.disabled = true;
+
+    const wraperForTextArea = document.createElement("div");
+    wraperForTextArea.id = "wraper-for-text-area";
+    wraperForTextArea.appendChild(textArea);
+
+    const button = document.createElement("button");
+    button.innerHTML = "OK";
+    button.name = "hide-button";
+    button.className = buttonClassName;
+
+    window.appendChild(wraperForTextArea);
+    window.appendChild(button);
+
+    return window;
   }
 }
-
-
-function createAlertBody(message, windowId, windowClassName, textAreaClassName, buttonClassName) {
-  const window = document.createElement("div");
-  window.className = windowClassName;
-  window.id = "alert-window";
-
-  const textArea = document.createElement("textarea");
-  textArea.className = textAreaClassName;
-  textArea.disabled = true;
-  textArea.innerHTML = message;
-
-  const wraperForTextArea = document.createElement("div");
-  wraperForTextArea.id = "wraper-for-text-area";
-  wraperForTextArea.appendChild(textArea);
-
-  const button = document.createElement("button");
-  button.innerHTML = "OK";
-  button.name = "hide-button";
-  button.className = buttonClassName;
-
-  window.appendChild(wraperForTextArea);
-  window.appendChild(button);
-
-  return window;
 }
 
 
