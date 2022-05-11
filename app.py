@@ -52,7 +52,7 @@ def authorization():
         g.db_manager = get_db_manager()
         g.db_manager.connect()
 
-        discover_login = "email" if app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["login"]).sign else "url"
+        discover_login = "email" if app.config["OVERSEER_FOR_USER_DATA"].check_for_correct_email_as("email", request.form["login"]).sign else "url"
 
         for user in g.db_manager.get_info_from("users", **{discover_login: request.form["login"]}):
             if check_password_hash(user["password"], request.form["password"]):
@@ -83,9 +83,9 @@ def registration():
         nitpicking_of_overseer = tuple(filter(
             lambda response: not response.sign,
             (
-                app.config["OVERSEER_FOR_DATA"].is_user_url_correct(request.form["name"]),
-                app.config["OVERSEER_FOR_DATA"].is_user_email_correct(request.form["email"]),
-                app.config["OVERSEER_FOR_DATA"].is_user_password_correct(request.form["password"])
+                *app.config["OVERSEER_FOR_USER_DATA"].check_data_as("username", request.form["name"]),
+                *app.config["OVERSEER_FOR_USER_DATA"].check_data_as("email", request.form["email"]),
+                *app.config["OVERSEER_FOR_USER_DATA"].check_data_as("password", request.form["password"])
             )
         ))
 
@@ -145,7 +145,7 @@ def change_profile():
     elif request.method == "GET":
         registered_user = get_data_of_registered_user()
 
-        response = make_response(render_template("change-profile.html", **registered_user))#**g.db_manager.get_info_from("users", id=session["user_id"])[0]))
+        response = make_response(render_template("change-profile.html", **registered_user))
         response.set_cookie("is_icon_standart", "1" if registered_user["icon"] is None else "0", max_age=3*60)
 
         return response

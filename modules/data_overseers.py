@@ -1,80 +1,41 @@
 from math import inf as infinity
-from functools import wraps
 
-import validators
-
-
-class Overseer:
-    """An abstract class responsible for the correctness of data implemented through interfaces and storing their configuration"""
+from functions_ import get_all_parents_of, get_all_children_of
+from data_overseer_intefaces import *
 
 
-class OverseerResponse:
-    """Overseer message about data correctness"""
+class DataOverseer:
+    """Abstract class that validates data based on the criteria of its config"""
 
-    def __init__(self, sign: bool, message: str = ""):
-        self.sign = sign
-        self.message = message
+    def __init__(self, themes_data: dict = dict()):
+        self.theme_data = DeeplyUpdatedDictionary()
+        self.fulfill_all_class_requirements()
 
-    def __bool__(self) -> bool:
-        return self.sign
+        self.theme_data.update(themes_data)
 
-    def __str__(self) -> str:
-        return self.message
-
-
-class IOverseer:
-    """Interface containing methods for determining data correctness and their default configuration"""
+    def fulfill_all_class_requirements(self) -> None:
+        for requirements_fulfillment_function in {
+            prototype.fulfill_requirements
+            for prototype in (self.__class__, *get_all_parents_of(self.__class__))[::-1]
+                if hasattr(prototype, "fulfill_requirements")
+        }:
+            requirements_fulfillment_function(self)
 
     @staticmethod
-    def default_returns_response_by(*args, **kwargs):
-        def decorator(method):
-            @wraps(method)
-            def body(self, *method_args, **method_kwargs):
-                result = method(self, *method_args, **method_kwargs)
-                if result is None:
-                    return OverseerResponse(*args, **kwargs)
-                else:
-                    return result
-
-            return body
-        return decorator
+    def fulfill_requirements(object_: object) -> None:
+        """Static method that changes the entered config for the state of an object of its class"""
 
 
-class IUserDataOverseer(IOverseer):
-    USERNAME_SIZE = [1, infinity]
-    USER_URL_SIZE = [1, infinity]
-    USER_EMAIL_SIZE = [1, infinity]
-    USER_PASSWORD_SIZE = [1, infinity]
-    FORBIDDEN_LETTERS_FOR_USER_URL = []
+class UserDataOverseer(DataOverseer, IEmailOverseer, IURLOverseer, *get_all_children_of(ITextOverseer)):
+    @staticmethod
+    def fulfill_requirements(object_: object) -> None:
+        object_.theme_data.update(
+            {
+                "username": {"url_verification": None},
+                "email": {"email_verification": None},
+                "public username": {},
+                "password": {}
+            }
+        )
 
-    @IOverseer.default_returns_response_by(sign=True)
-    def is_username_correct(self, username) -> OverseerResponse:
-        if not validators.length(username, min=self.USERNAME_SIZE[0], max=self.USERNAME_SIZE[1]):
-            return OverseerResponse(False, f"Name size must be in {self.USERNAME_SIZE} diopozon")
-
-    @IOverseer.default_returns_response_by(sign=True)
-    def is_user_url_correct(self, url) -> OverseerResponse:
-        if not validators.length(url, min=self.USER_URL_SIZE[0], max=self.USER_URL_SIZE[1]):
-            return OverseerResponse(False, f"URL size must be in {self.USER_URL_SIZE} diopozon")
-
-        elif not validators.url(f"http://{url}.xyz", public=True):
-            return OverseerResponse(False, f"URL is not correct")
-
-        elif not all(tuple(map(lambda letter: not letter in self.FORBIDDEN_LETTERS_FOR_USER_URL, url))):
-            return OverseerResponse(False, f"URL must not contain letters: {self.FORBIDDEN_LETTERS_FOR_USER_URL}")
-
-    @IOverseer.default_returns_response_by(sign=True)
-    def is_user_email_correct(self, user_email) -> OverseerResponse:
-        if not validators.email(user_email):
-            return OverseerResponse(False, "Email is incorrect")
-
-        elif not validators.length(user_email.split("@")[0], min=self.USER_EMAIL_SIZE[0], max=self.USER_EMAIL_SIZE[1]):
-            return OverseerResponse(False, f"Email size must be in {self.USER_EMAIL_SIZE} diopozon")
-
-    @IOverseer.default_returns_response_by(sign=True)
-    def is_user_password_correct(self, user_password) -> OverseerResponse:
-        if not validators.length(user_password, min=self.USER_PASSWORD_SIZE[0], max=self.USER_PASSWORD_SIZE[1]):
-            return OverseerResponse(False, f"Password size must be in {self.USER_PASSWORD_SIZE} diopozon")
-
-class MainOverseer(Overseer, IUserDataOverseer):
-    USER_PASSWORD_SIZE = [4, infinity]
+        object_.check_for_correct_url_as.data_preparation_functions["username"] = lambda url: f"http://{url}.xyz"
