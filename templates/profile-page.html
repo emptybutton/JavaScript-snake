@@ -1,0 +1,29 @@
+{% extends 'base-page.html' %}
+
+{% block title %}
+  {% if current_account_belongs_to_current_user %} Your Profile
+  {% else %} {{ user.official_username }} {% if user.public_username %} ({{user.public_username}}) {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block main %}
+  <div id="icon-block">
+    <div>
+      <a id={% if current_account_belongs_to_current_user %}to-change-profile-page{% else %}to-icon {% endif %} href={% if current_account_belongs_to_current_user %}{{url_for("views.change_profile")}} {% else %}{{url_for("api.usericon", official_username=user.official_username)}} {% endif %}>
+        <img class="user-icon" src={{url_for("api.usericon", official_username=user.official_username)}}>
+      </a>
+    </div>
+    <div id="change-profile-hint" class="hint">Change profile</div>
+  </div>
+  <div id="naming">
+    <h3 class="username">{% if user.public_username %}{{user.public_username}} {% else %}{{user.official_username}} {% endif %}</h3>
+    {% if user.description %}
+    <textarea class="user-description" disabled>{{user.description}}</textarea>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block script %}
+  {{super()}}
+  <script type="module" src={{url_for("static", filename="js/profile.js")}}></script>
+{% endblock %}

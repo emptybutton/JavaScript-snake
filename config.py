@@ -1,15 +1,11 @@
-from math import inf
-from os import path
-import secrets
+from secrets import token_hex
 
-from modules.database_managers import SQLiteManager
-from modules.data_overseers import UserDataOverseer
 
 DEBUG = True
-SECRET_KEY = secrets.token_hex()
+PRESERVE_CONTEXT_ON_EXCEPTION = False
+SECRET_KEY = token_hex()
 
-DATABASE_PATH = path.abspath("databases/main-base.db")
-PROTOTYPE_OF_DATABASE_MANAGER = SQLiteManager
-OVERSEER_FOR_USER_DATA = UserDataOverseer({
-    "password": {"line_length": (4, inf)}
-})
+SQLALCHEMY_DATABASE_URI = "sqlite:///databases/main-base.db"
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+ICON_GENERATOR_SERVICE_URL = "http://127.0.0.1:8010" # Search here https://github.com/TheArtur128/Abstract-Image-Generator

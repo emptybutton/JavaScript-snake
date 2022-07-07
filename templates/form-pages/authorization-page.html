@@ -1,0 +1,16 @@
+{% extends 'form-pages/base-form-page.html' %}
+
+{% block title %}{{ super() }} login{% endblock %}
+
+{% block header %}<h4>Authorization to snake account</h4>{% endblock %}
+
+{% block form_fields %}
+  <div class="login">
+    {{ form.login(placeholder="Login") }}
+  </div>
+  <div class="password">
+    {{ form.password(placeholder=form.password.label.text.capitalize()) }}
+  </div>
+{% endblock %}
+
+{% block script %}<script src="static\js\authorization.js"></script>{% endblock %}

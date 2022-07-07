@@ -1,0 +1,36 @@
+{% extends 'form-pages/base-form-page.html' %}
+
+{% block title %}Change your profile{% endblock %}
+
+{% block form_fields %}
+  {% block form %}
+    <form method="post" id="form-for-new-account-data" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <div class="garbage-of-form">
+        <img class="user-icon" id="user-icon-buffer" name="userIcon" src="{{ url_for("api.usericon", official_username=user.official_username) }}">
+      </div>
+      <div class="garbage-of-form">
+        {{ form.user_icon(class="internal-loader", id="icon-loader", accept=".jpg, .jpeg") }}
+        <button type="button" class="white-form" id="add-image-button">Up load</button>
+        <button type="button" class="white-form" id="generate-image-button">Generate</button>
+      </div>
+      <div class="structured-text" id="mutable-information">
+        <div class="garbage-of-form">
+          {{ form.public_username(placeholder="Public name of your account", value=user.public_username if user.public_username else "") }}
+        </div>
+        <div class="garbage-of-form">
+          {{ form.user_description(class="user-description", id="user-description", placeholder="Your description") }}
+          <span id="user-description-value">{{ user.description if user.description else "" }}</span>
+        </div>
+        <div id="wraper-for-submit-button">
+          <button type="submit" id="submit-button">Save</button>
+        </div>
+      </div>
+    </form>
+  {% endblock %}
+{% endblock %}
+
+{% block script %}
+  {{ super() }}
+  <script src="{{url_for("static", filename="js/change-profile.js")}}"></script>
+{% endblock %}

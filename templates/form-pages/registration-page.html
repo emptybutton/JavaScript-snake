@@ -1,0 +1,20 @@
+{% extends 'form-pages/base-form-page.html' %}
+
+{% block title %}{{ super() }} registration{% endblock %}
+
+{% block header %}<h2>Create your snake account!</h2>{% endblock %}
+
+{% block form_fields %}
+  <div id="user-name">
+    {{ form.official_username(placeholder=form.official_username.label.text.capitalize()) }}
+  </div>
+  <div id="user-email">
+    {{ form.email(placeholder=form.email.label.text.capitalize()) }}
+  </div>
+  <div id="user-password">
+    {{ form.password(placeholder=form.password.label.text.capitalize()) }}
+  </div>
+  <div class="some-papers">
+    {{ form.policy_checkbox() }}I agree with all<a href={{ url_for("views.policy") }}>papers</a>
+  </div>
+{% endblock %}

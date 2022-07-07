@@ -18,6 +18,21 @@ a {
   color: #bec8f0;
 }
 
+.error-list {
+  display: inline-block;
+  position: relative;
+  top: 10px;
+}
+
+.error-list * {
+  word-break: keep-all;
+  text-align: left;
+}
+
+.error-list li::marker {
+  color: #ff3860;
+}
+
 a:hover {
   text-decoration-color: #fcd84e;
   color: #fcd84e;
@@ -25,6 +40,10 @@ a:hover {
 
 input, button, textarea {
   border-radius: 3px;
+}
+
+input[incorrectly-filled], textarea[incorrectly-filled] {
+  background-color: #fc6268;
 }
 
 input, .structured-text textarea {
@@ -44,6 +63,10 @@ input[type="text"], input[type="password"] {
 div {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+.alert-message {
+  display: none;
 }
 
 .ghost {
@@ -75,6 +98,7 @@ div {
   margin: 4px 6px 4px 6px;
   color: #262626;
 }
+
 
 .structured-text a {color: #8f87ff}
 
@@ -169,8 +193,12 @@ button.white-form:active {
   display: none;
 }
 
+#user-description-value {
+  display: none;
+}
 
-#add-image-button, #remove-image-button {
+
+#add-image-button, #generate-image-button {
   position: relative;
   bottom: 40px;
 }
@@ -179,7 +207,7 @@ button.white-form:active {
   right: 53px;
 }
 
-#remove-image-button {
+#generate-image-button {
   left: 53px;
 }
 

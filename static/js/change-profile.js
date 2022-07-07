@@ -1,86 +1,72 @@
-const form = document.getElementById("form-for-new-account-data");
+const proxyForUserDescriptionValue = document.getElementById("user-description-value");
 
-const bufferForNewIcon = document.getElementsByClassName("user-icon")[0];
-const standartIconSize = [500, 500];
+document.getElementById("user-description").innerHTML = proxyForUserDescriptionValue.innerHTML
 
-let isIconDefault = Boolean(Number(getCookie("is_icon_standart")));
-
-const submitButton = document.getElementById("save-button");
-const buttonLoader = document.getElementById("add-image-button");
-const buttonRemover = document.getElementById("remove-image-button");
-
-const trueIconLoader = document.getElementById("icon-loader");
+proxyForUserDescriptionValue.parentElement.removeChild(proxyForUserDescriptionValue);
 
 
-submitButton.onclick = () => {
-  if (!isIconDefault) {
-    imageToCanvas(bufferForNewIcon, standartIconSize[0], standartIconSize[1]).toBlob((blob) => {
-      reader = new FileReader();
-      reader.readAsDataURL(blob);
+const userIconBuffer = document.getElementById("user-icon-buffer");
 
-      reader.onload = () => {
-        addDataToForm(form, "icon", reader.result.slice(23));
-        form.submit();
-      }
-    }, "image/jpeg");
-  }
-  else {
-    addDataToForm(form, "icon", "");
-    form.submit();
-  }
+const hideIconLoader = document.getElementById("icon-loader");
+
+const submitButton = document.getElementById("submit-button");
+const iconUploadButton = document.getElementById("add-image-button");
+const iconGenerationButton = document.getElementById("generate-image-button");
+
+
+userIconBuffer.onload = () => {
+  const canvas = imageToCanvas(userIconBuffer);
+
+  canvas.toBlob((blob) => {
+    hideIconLoader.files = getFileListFrom([new File([blob], 'image.jpeg', {type: blob.type})]);
+  })
 }
 
 
-buttonLoader.onclick = () => {
-  trueIconLoader.click();
+iconUploadButton.onclick = () => {
+  hideIconLoader.click();
 }
 
 
-buttonRemover.onclick = () => {
-  fetch(new Request("/api/default-user-avatar")).then(response => response.blob())
+iconGenerationButton.onclick = () => {
+  fetch(new Request("/api/random-user-icon")).then(response => response.blob())
     .then(blob => {
-      bufferForNewIcon.src = URL.createObjectURL(blob);
+      userIconBuffer.src = URL.createObjectURL(blob);
+      hideIconLoader.files = getFileListFrom([new File([blob], 'image.jpeg', {type: blob.type})]);
     });
-
-  isIconDefault = true;
 }
 
 
-trueIconLoader.addEventListener('change', () => {
-  bufferForNewIcon.src = URL.createObjectURL(trueIconLoader.files[0]);
-  isIconDefault = false;
+hideIconLoader.addEventListener('change', () => {
+  userIconBuffer.src = URL.createObjectURL(hideIconLoader.files[0]);
 });
 
 
+function getFileListFrom(fiels) {
+  const dataTransfer = new DataTransfer();
+
+  fiels.forEach(file => {
+    dataTransfer.items.add(file);
+  });
+
+  return dataTransfer.files;
+}
+
+
 function imageToCanvas(image, width, height) {
-  let canvas = document.createElement('canvas');
+  if (!width)
+    width = parseInt(image.naturalWidth);
+
+  if (!height)
+    height = parseInt(image.naturalHeight);
+
+
+  const canvas = document.createElement('canvas');
+
   canvas.width = width;
   canvas.height = height;
 
   canvas.getContext('2d').drawImage(image, 0, 0, width, height);
 
   return canvas;
-}
-
-
-function addDataToForm(form, name, data) {
-  let homeData = document.getElementsByName(name)[0];
-
-  if (!homeData) {
-    homeData = document.createElement("input");
-    homeData.name = name;
-    homeData.style.display = "none";
-
-    form.appendChild(homeData);
-  }
-
-  homeData.value = data;
-}
-
-
-function getCookie(name) {
-  let matches = document.cookie.match(new RegExp(
-    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-  ));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
 }

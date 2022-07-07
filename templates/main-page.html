@@ -1,0 +1,26 @@
+{% extends 'base-page.html' %}
+
+{% block header %}
+  <h1>It's a snake made in <span class="js-text">JS</span></h1>
+{% endblock %}
+
+{% block main %}
+  <noscript>JavaScript is disabled. Turn it on :(</noscript>
+  <div class="game-window">
+    <canvas id="main-surface" width="500" height="500"></canvas>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {% if not user.is_anonymous %}
+    <a id="profile-way" href={{ url_for("views.profile") }}>profile</a>
+  {% else %}
+    <a id="registration-way" href={{ url_for("views.registration") }}>registration</a>
+    <a id="authorization-way" href={{ url_for("views.authorization") }}>authorization</a>
+  {% endif %}
+{% endblock %}
+
+{% block script %}
+  {{ super() }}
+  <script type="module" src={{ url_for("static", filename="js/main-page.js") }}></script>
+{% endblock %}

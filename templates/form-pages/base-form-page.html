@@ -1,0 +1,27 @@
+{% extends 'base-page.html' %}
+
+{% block main %}
+  {% block form %}
+    <form method="post" id="user-form">
+      {{ form.hidden_tag() }}
+      <div class="structured-text">
+        {% block form_fields %}{% endblock %}
+        <button type="submit" class="push-data" >{% block button_text %}Sign up{% endblock %}</button>
+      </div>
+    </form>
+  {% endblock %}
+  {% block error_informer %}
+    <div class="error-list">
+      {% if error_by_field_id %}
+        {% for field_id, error_message in error_by_field_id.items() %}
+          <li field-id={{field_id}}>{{ error_message }}</li>
+        {% endfor %}
+      {% endif %}
+      {% with additional_errors = get_flashed_messages(category_filter=("additional errors"),) %}
+        {% for error_message in additional_errors %}
+          <li>{{ error_message }}</li>
+        {% endfor %}
+      {% endwith %}
+    </div>
+  {% endblock %}
+{% endblock %}

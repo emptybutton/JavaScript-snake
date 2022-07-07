@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="{{url_for("static", filename="images/app-icon.png")}}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href={% block style %} {{url_for("static", filename="css/style.css")}} {% endblock %}>
+    <title>{% block title %}OSnake{% endblock %}</title>
+  </head>
+  <body>
+    {% block body %}
+      <header>
+        {% block header %}{% endblock %}
+      </header>
+      <main>
+        {% block main %}{% endblock %}
+      </main>
+      <footer>
+        {% block footer %}{% endblock %}
+      </footer>
+      {% block script %}
+        <script type="module" src={{ url_for("static", filename="js/base-page.js") }}></script>
+      {% endblock %}
+
+      {% if alert_message %}
+        <span class="alert-message">{{ alert_message }}</span>
+      {% endif %}
+      {% for alert_message in get_flashed_messages(category_filter=("alert_messages"),) %}
+        <span class="alert-message">{{ alert_message }}</span>
+      {% endfor %}
+
+    {% endblock %}
+  </body>
+</html>
